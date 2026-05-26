@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "types": ["node"],
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@Assets/*": ["src/Assets/*"]
+    }
+  },
+  "include": [
+    "src",
+    "vite.config.ts",
+    "vite-env.d.ts"
+, "../backend/Servers/PlacesServer.js"  ],
+  "exclude": ["node_modules", "dist", "../backend"]
+}
