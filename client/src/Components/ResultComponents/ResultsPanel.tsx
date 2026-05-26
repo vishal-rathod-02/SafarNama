@@ -1,19 +1,18 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { ResultsPanelProps, FilterState } from '@/hooks/types'
+import type { ResultsPanelProps, FilterState } from "@/hooks/types";
 import { PlaceCard } from "./PlaceCard";
 import {
   BedDouble as HotelIcon,
   Palmtree as MustVisitIcon,
   SlidersHorizontal,
   X,
-  Compass, 
+  Compass,
   UtensilsCrossed,
 } from "lucide-react";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { FloatingFilterButton } from "./FloatingFilter";
 import TripSummaryCard from "./TripSummaryCard";
-
 
 const TabButton: React.FC<{
   label: string;
@@ -24,20 +23,18 @@ const TabButton: React.FC<{
 }> = ({ label, count, isActive, onClick, Icon }) => (
   <button
     onClick={onClick}
-    className={`group flex items-center gap-2 px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-all duration-300 transform hover:scale-104 ${
-      isActive
+    className={`group flex items-center gap-2 px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-all duration-300 transform hover:scale-104 ${isActive
         ? "bg-green-600 text-white shadow-lg"
         : "bg-gray-100 text-gray-700 hover:bg-amber-300"
-    }`}
+      }`}
   >
     <Icon className="w-5 h-5" />
     {label}
     <span
-      className={`ml-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${
-        isActive
+      className={`ml-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${isActive
           ? "bg-green-500"
           : "bg-gray-300 text-gray-600 group-hover:bg-amber-100"
-      }`}
+        }`}
     >
       {count}
     </span>
@@ -81,7 +78,7 @@ const FilterDrawer: React.FC<{
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[100] flex justify-end bg-black/40 backdrop-blur-md"
+          className="fixed inset-0 z-100 flex justify-end bg-black/40 backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -90,7 +87,7 @@ const FilterDrawer: React.FC<{
         >
           <motion.div
             className="relative w-full max-w-sm h-full flex flex-col rounded-l-3xl shadow-2xl overflow-hidden
-              bg-gradient-to-b from-white/95 to-white/80 backdrop-blur-2xl border-l border-white/30"
+              bg-linear-to-b from-white/95 to-white/80 backdrop-blur-2xl border-l border-white/30"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -98,7 +95,7 @@ const FilterDrawer: React.FC<{
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="relative px-6 py-5 bg-gradient-to-r from-green-600 via-emerald-500 to-teal-400 text-white shadow-md">
+            <div className="relative px-6 py-5 bg-linear-to-r from-green-600 via-emerald-500 to-teal-400 text-white shadow-md">
               <h3 className="text-2xl font-bold drop-shadow-sm">Filters</h3>
               <button
                 onClick={onClose}
@@ -120,10 +117,9 @@ const FilterDrawer: React.FC<{
                       setFilters((f) => ({ ...f, category: "all" }))
                     }
                     className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-200 
-                      ${
-                        filters.category === "all"
-                          ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                          : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                      ${filters.category === "all"
+                        ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
+                        : "bg-white/60 hover:bg-green-50 border border-gray-200"
                       }`}
                   >
                     All ({tripData.places.length})
@@ -136,10 +132,9 @@ const FilterDrawer: React.FC<{
                         setFilters((f) => ({ ...f, category: cat.id }))
                       }
                       className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-200
-                        ${
-                          filters.category === cat.id
-                            ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                            : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                        ${filters.category === cat.id
+                          ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
+                          : "bg-white/60 hover:bg-green-50 border border-gray-200"
                         }`}
                     >
                       {cat.label} ({cat.count})
@@ -195,10 +190,9 @@ const FilterDrawer: React.FC<{
                       key={kw}
                       onClick={() => handleKeywordChange(kw.toLowerCase())}
                       className={`px-3 py-1.5 text-sm rounded-lg font-semibold transition-all duration-200
-                        ${
-                          filters.keywords.includes(kw.toLowerCase())
-                            ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                            : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                        ${filters.keywords.includes(kw.toLowerCase())
+                          ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
+                          : "bg-white/60 hover:bg-green-50 border border-gray-200"
                         }`}
                     >
                       {kw}
@@ -218,7 +212,7 @@ const FilterDrawer: React.FC<{
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-semibold rounded-xl hover:opacity-90 transition"
+                className="flex-1 py-3 bg-linear-to-r from-green-600 to-emerald-500 text-white font-semibold rounded-xl hover:opacity-90 transition"
               >
                 Show Results
               </button>
@@ -283,7 +277,15 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ tripData }) => {
         {
           id: "attractions",
           label: "Must-Visit",
-          keywords: ["museum", "historic", "park", "scenic", "temple", "landmark", "city"],
+          keywords: [
+            "museum",
+            "historic",
+            "park",
+            "scenic",
+            "temple",
+            "landmark",
+            "city",
+          ],
           icon: MustVisitIcon,
         },
         {
@@ -305,7 +307,7 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ tripData }) => {
           return cat.keywords.some((kw) => category.includes(kw));
         }).length,
       })),
-    [tripData.places]
+    [tripData.places],
   );
 
   // 🔹 Filtered places (safe for missing location/category/rating)
@@ -320,25 +322,26 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ tripData }) => {
         typeof place.rating === "number"
           ? place.rating
           : typeof place.rating === "string"
-          ? parseFloat(place.rating)
-          : 0;
+            ? parseFloat(place.rating)
+            : 0;
 
       const activeCategory = filterCategories.find(
-        (c) => c.id === filters.category
+        (c) => c.id === filters.category,
       );
 
       // Category filter
       if (
         activeCategory &&
-        !activeCategory.keywords.some((kw) =>
-          placeCategory.includes(kw)
-        )
+        !activeCategory.keywords.some((kw) => placeCategory.includes(kw))
       ) {
         return false;
       }
 
       // Source / destination location filter
-      if (filters.location === "source" && !placeLocation.includes(sourceName)) {
+      if (
+        filters.location === "source" &&
+        !placeLocation.includes(sourceName)
+      ) {
         return false;
       }
 
@@ -358,7 +361,7 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ tripData }) => {
       if (filters.keywords.length > 0) {
         if (
           !filters.keywords.some((kw) =>
-            placeCategory.includes(kw.toLowerCase())
+            placeCategory.includes(kw.toLowerCase()),
           )
         ) {
           return false;
@@ -428,7 +431,7 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ tripData }) => {
                     }
                     Icon={cat.icon}
                   />
-                )
+                ),
             )}
             <div className="ml-auto">
               <button
