@@ -1,20 +1,31 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, History, Flame, Loader2, XIcon, Trash2 } from "lucide-react";
 import type { Suggestion, AutocompleteInputProps } from "@/hooks/types";
 import { LocationService } from "@/Services/Location/Location.service";
 function useDebouncedCallback(cb: (...args: any[]) => void, delay = 300) {
+  const cbRef = useRef(cb);
   const tRef = useRef<number | null>(null);
+
+  // Keep latest callback reference
+  cbRef.current = cb;
+
   useEffect(
     () => () => {
       if (tRef.current) window.clearTimeout(tRef.current);
     },
     []
   );
-  return (...args: any[]) => {
-    if (tRef.current) window.clearTimeout(tRef.current);
-    tRef.current = window.setTimeout(() => cb(...args), delay);
-  };
+
+  return useCallback(
+    (...args: any[]) => {
+      if (tRef.current) window.clearTimeout(tRef.current);
+      tRef.current = window.setTimeout(() => {
+        cbRef.current(...args);
+      }, delay);
+    },
+    [delay]
+  );
 }
 
 /* -----------------------------
@@ -115,7 +126,6 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       return;
     }
 
-    setIsLoading(true);
     fetchSuggestionsDebounced(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -124,6 +134,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
      Fetch function
   ------------------------------*/
   async function fetchSuggestions(q: string) {
+    setIsLoading(true);
     try {
       const res = await LocationService.autocomplete(q);
       if (!res.ok) throw new Error("Failed to fetch suggestions");
@@ -165,6 +176,74 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           type: sug.type,
         })
       );
+    }
+  };
+
+  /* -----------------------------
+     Geolocation using OSM Nominatim API + IP Lookup Fallback
+  ------------------------------*/
+  const handleUseCurrentLocation = async () => {
+    setIsLoading(true);
+    
+    const fallbackToIpLookup = async () => {
+      try {
+        const ipRes = await fetch("https://ipapi.co/json/");
+        if (!ipRes.ok) throw new Error("IP lookup response bad");
+        const ipData = await ipRes.json();
+        if (ipData.city) {
+          const resolved = `${ipData.city}, ${ipData.region || ipData.country_name}`;
+          onChange(resolved);
+          setIsValidSelection(true);
+          setIsActive(false);
+        } else {
+          throw new Error("No city in IP data");
+        }
+      } catch (e) {
+        console.error("IP lookup failed:", e);
+      }
+    };
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const geoRes = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
+            );
+            if (!geoRes.ok) throw new Error("Reverse geocode response bad");
+            const geoData = await geoRes.json();
+            const address = geoData.address || {};
+            const resolvedCity = address.city || address.town || address.village || address.state || "";
+            const resolvedState = address.state || "";
+            const name = resolvedCity && resolvedState && resolvedCity !== resolvedState
+              ? `${resolvedCity}, ${resolvedState}`
+              : resolvedCity || resolvedState;
+            
+            if (name) {
+              onChange(name);
+              setIsValidSelection(true);
+              setIsActive(false);
+            } else {
+              await fallbackToIpLookup();
+            }
+          } catch (err) {
+            console.error("OSM Nominatim failed, falling back to IP:", err);
+            await fallbackToIpLookup();
+          } finally {
+            setIsLoading(false);
+          }
+        },
+        async (error) => {
+          console.warn("GPS Geolocation failed or denied, falling back to IP:", error.message);
+          await fallbackToIpLookup();
+          setIsLoading(false);
+        },
+        { timeout: 5000, enableHighAccuracy: false }
+      );
+    } else {
+      await fallbackToIpLookup();
+      setIsLoading(false);
     }
   };
 
@@ -290,13 +369,27 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 
       {/* Dropdown */}
       <AnimatePresence>
-        {isActive && (
+        {isActive && (value.length >= 2 || recentSearches.length > 0 || type === "source") && (
           <motion.ul
             className="absolute z-20 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-2xl overflow-hidden max-h-64 overflow-y-auto"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
           >
+            {/* Geolocation Button when input is empty/short for source field */}
+            {value.length < 2 && type === "source" && (
+              <div className="border-b border-gray-100 p-2 bg-slate-50/50">
+                <button
+                  type="button"
+                  onClick={handleUseCurrentLocation}
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold text-green-600 hover:text-green-700 bg-green-50/85 hover:bg-green-100/85 border border-green-200/50 rounded-lg shadow-2xs hover:shadow-xs transition duration-150 cursor-pointer"
+                >
+                  <MapPin className="w-4 h-4 text-green-500 animate-bounce" />
+                  <span>Use Current Location</span>
+                </button>
+              </div>
+            )}
+
             {/* Recent searches when input is empty/short */}
             {value.length < 2 && recentSearches.length > 0 && (
               <>
@@ -322,10 +415,9 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
                     onMouseEnter={() => setHighlightIndex(idx)}
                     onClick={() => handleSelect({ short_name: item })}
                     className={`flex items-center justify-between gap-3 px-4 py-3 cursor-pointer border-b last:border-0 transition-colors
-                      ${
-                        highlightIndex === idx
-                          ? "bg-green-100"
-                          : "hover:bg-green-50"
+                      ${highlightIndex === idx
+                        ? "bg-green-100"
+                        : "hover:bg-green-50"
                       }`}
                     initial={{ opacity: 0, x: -6 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -340,7 +432,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 
                     {/* Per-item delete button */}
                     <button
-                      className="flex-shrink-0 text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-red-50 transition"
+                      className="shrink-0 text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-red-50 transition"
                       onClick={(e) => {
                         e.stopPropagation(); // prevent selecting
                         removeHistoryItem(item);
@@ -366,10 +458,9 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
                     onMouseEnter={() => setHighlightIndex(idx)}
                     onClick={() => handleSelect(s)}
                     className={`flex items-start gap-3 px-4 py-3 cursor-pointer border-b last:border-0 transition-colors
-                      ${
-                        highlightIndex === idx
-                          ? "bg-green-100"
-                          : "hover:bg-green-50"
+                      ${highlightIndex === idx
+                        ? "bg-green-100"
+                        : "hover:bg-green-50"
                       }`}
                     initial={{ opacity: 0, x: -6 }}
                     animate={{ opacity: 1, x: 0 }}
