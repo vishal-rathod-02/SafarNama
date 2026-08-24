@@ -32,6 +32,16 @@ app.use(
 );
 app.use(express.json());
 
+// --- Logger Middleware ---
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    console.log(`[API] ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
+  });
+  next();
+});
+
 // --- Global Database Connection ---
 mongoose
   .connect(process.env.MONGO_URI, {
