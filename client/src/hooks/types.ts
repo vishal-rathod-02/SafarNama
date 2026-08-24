@@ -95,6 +95,10 @@ export interface TripData {
 export interface SearchParams {
   start: string;
   end: string;
+  travelDate?: string;
+  tripPreference?: string;
+  vehicleMode?: string;
+  travelCompanions?: string;
 }
 
 export interface HeaderProps {
@@ -114,7 +118,7 @@ export interface HomePageProps {
 }
 
 export interface HeroProps {
-  onSearch: (params: { start: string; end: string }) => void;
+  onSearch: (params: SearchParams) => void;
   destinationValue: string;
   onDestinationChange: (value: string) => void;
   isLoading: boolean; 
@@ -138,6 +142,12 @@ export interface PlaceCardProps {
 
 export interface ResultsPanelProps {
   tripData: TripData;
+  sourceCoords?: Coordinates | null;
+  destinationCoords?: Coordinates | null;
+  travelDate?: string | null;
+  tripPreference?: string | null;
+  vehicleMode?: string | null;
+  travelCompanions?: string | null;
 }
 
 export interface WeatherWidgetProps {
@@ -255,6 +265,8 @@ export interface FilterState {
 
 export interface TripSummaryCardProps {
   tripData: TripData;
+  sourceCoords?: Coordinates | null;
+  destinationCoords?: Coordinates | null;
 }
 
 //Toast type  
