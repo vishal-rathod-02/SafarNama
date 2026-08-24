@@ -1,69 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthComponents/AuthContext';
 import { TripService } from '@/Services/Trip/Trip.service';
+import { useNavigate } from 'react-router-dom';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Map, Trash2, Calendar, Flag, Route } from 'lucide-react';
-import { useToast } from '../Shared/ToastContext'
-
-// --- THIS IS THE NEW, DYNAMIC SavedTripCard ---
-const SavedTripCard = ({ trip, onDelete }: { trip: any; onDelete: (id: string) => void; }) => {
-
-    return (
-        <motion.div
-            layout
-            className="group bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 flex flex-col h-full relative"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.3 } }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-           whileHover={{ 
-                y: -8, 
-                boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' 
-            }}
-        >
-            <div className="relative h-50">
-                {/* <img src={previewImage} alt={trip.source} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" /> */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                <div className="absolute top-0 right-0 p-2">
-                    <button 
-                        onClick={() => onDelete(trip._id)}
-                        className="p-2 text-white/70 bg-black/20 rounded-full hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
-                        title="Delete Trip"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
-            <div className="p-5 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-gray-800 leading-tight">
-                    {trip.source}
-                </h3>
-                <div className="flex items-center gap-2 my-1 text-gray-500">
-                    <Route className="w-4 h-4" />
-                    <span className="font-bold">to</span>
-                    <Flag className="w-4 h-4" />
-                    <h4 className="font-bold text-gray-800">{trip.destination}</h4>
-                </div>
-                <p className="text-sm text-gray-500 mt-2">{trip.places.length} stops &bull; {trip.distance} km</p>
-                <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>Saved on: {new Date(trip.createdAt).toLocaleDateString()}</span>
-                </div>
-                
-                <div className="mt-auto pt-4">
-                    <button className="w-full flex items-center justify-center gap-2 bg-green-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-green-600 transition transform hover:scale-105">
-                        <span>View Details</span>
-                    </button>
-                </div>
-            </div>
-        </motion.div>
-    );
-};
+import { Flag } from 'lucide-react';
+import { useToast } from '../Shared/ToastContext';
+import { SavedTripCard } from './SavedTripCard';
 
 export const MyTripsPage = () => {
     const { token } = useAuth();
     const { addToast } = useToast();
+    const navigate = useNavigate();
     const [trips, setTrips] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -74,9 +22,9 @@ export const MyTripsPage = () => {
                 const response = await TripService.myTrips();
                 if (!response.ok) throw new Error('Failed to fetch your trips.');
                 const data = await response.json();
-                setTrips(data.trips);
+                setTrips(data.trips || []);
             } catch (error: any) {
-                addToast({ message: error.Message, type: "error" });
+                addToast({ message: error.message || "Failed to load trips", type: "error" });
             } finally {
                 setIsLoading(false);
             }
@@ -85,26 +33,52 @@ export const MyTripsPage = () => {
     }, [token, addToast]);
 
     const handleDeleteTrip = async (tripId: string) => {
-        // Optimistic UI: remove from state immediately
         const originalTrips = trips;
         setTrips(prevTrips => prevTrips.filter(trip => trip._id !== tripId));
-        addToast({message: "Trip deleted successfully!", type: "success"});
+        addToast({ message: "Trip deleted successfully!", type: "success" });
 
-        // Then, make the API call to delete from the database
         try {
             const response = await TripService.deleteTrip(tripId);
             if (!response.ok) throw new Error("Could not delete trip from server.");
         } catch (error) {
-            addToast({message: "Error deleting trip. Restoring.", type: "error"});
-            setTrips(originalTrips); // Revert on error
+            addToast({ message: "Error deleting trip. Restoring.", type: "error" });
+            setTrips(originalTrips);
         }
     };
 
-    if (isLoading) return <div className="text-center py-24">Loading your saved trips...</div>;
+    const handleViewDetails = (trip: any) => {
+        navigate("/results", {
+            state: {
+                tripData: {
+                    source: trip.source,
+                    destination: trip.destination,
+                    distance: trip.distance,
+                    duration: trip.duration,
+                    summary: trip.summary,
+                    highlights: trip.highlights,
+                    itinerary: trip.itinerary,
+                    places: trip.places,
+                },
+                sourceCoords: null,
+                destinationCoords: null,
+                routePolyline: null,
+                fromResultsState: null,
+            }
+        });
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-32 space-y-4">
+                <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-gray-500 font-medium animate-pulse">Loading your saved journeys...</p>
+            </div>
+        );
+    }
 
     return (
-        <motion.div 
-            className="container mx-auto py-28 px-4"
+        <motion.div
+            className="container mx-auto py-24 px-4 sm:px-6 lg:px-8"
             initial="hidden"
             animate="visible"
             variants={{
@@ -112,27 +86,53 @@ export const MyTripsPage = () => {
                 visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
             }}
         >
-            <motion.h1 variants={{hidden: { opacity: 0, y: -20 }, visible: { opacity: 1, y: 0 }}} className="text-4xl sm:text-5xl font-extrabold text-gray-800 mb-2">My Saved Trips</motion.h1>
-            <motion.p variants={{hidden: { opacity: 0, y: -20 }, visible: { opacity: 1, y: 0 }}} className="text-gray-600 mb-12">Your personal collection of planned adventures.</motion.p>
-            
-            <AnimatePresence>
-                {trips.length > 0 ? (
-                    <motion.div 
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                    >
-                        {trips.map((trip) => (
-                            <SavedTripCard key={trip._id} trip={trip} onDelete={handleDeleteTrip} />
-                        ))}
-                    </motion.div>
-                ) : (
-                    <motion.div 
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                        className="text-center py-20 border-2 border-dashed rounded-2xl"
-                    >
-                        {/* ... "No trips" message ... */}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <div className="max-w-7xl mx-auto">
+                <motion.h1
+                    variants={{ hidden: { opacity: 0, y: -20 }, visible: { opacity: 1, y: 0 } }}
+                    className="text-4xl font-extrabold text-gray-900 tracking-tight"
+                >
+                    My Saved Trips
+                </motion.h1>
+                <motion.p
+                    variants={{ hidden: { opacity: 0, y: -20 }, visible: { opacity: 1, y: 0 } }}
+                    className="text-gray-500 mt-2 mb-10"
+                >
+                    Review and explore your personalized custom road trip plans.
+                </motion.p>
+
+                <AnimatePresence mode="popLayout">
+                    {trips.length > 0 ? (
+                        <motion.div
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+                        >
+                            {trips.map((trip) => (
+                                <SavedTripCard
+                                    key={trip._id}
+                                    trip={trip}
+                                    onDelete={handleDeleteTrip}
+                                    onView={handleViewDetails}
+                                />
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center py-20 border-2 border-dashed border-gray-200 rounded-3xl bg-white px-4"
+                        >
+                            <Flag className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                            <h3 className="text-lg font-bold text-gray-800">No trips saved yet</h3>
+                            <p className="text-gray-500 mt-1 mb-6">Plan a route from the homepage to save your first trip guide!</p>
+                            <button
+                                onClick={() => navigate("/")}
+                                className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-xl transition transform hover:scale-105 cursor-pointer"
+                            >
+                                Start Planning
+                            </button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </motion.div>
     );
 };
