@@ -8,20 +8,28 @@ const memoryCache = new Map();
 
 // --- Helper: Get from Cache ---
 const getCachedImage = async (key) => {
-  if (redisClient) {
-    const cached = await redisClient.get(key);
-    return cached ? JSON.parse(cached) : null;
+  if (redisClient && redisClient.status === "ready") {
+    try {
+      const cached = await redisClient.get(key);
+      return cached ? JSON.parse(cached) : null;
+    } catch (err) {
+      console.warn("⚠️ Redis image getCache error:", err.message);
+    }
   }
   return memoryCache.get(key) || null;
 };
 
 // --- Helper: Save to Cache ---
 const setCachedImage = async (key, data) => {
-  if (redisClient) {
-    await redisClient.set(key, JSON.stringify(data), "EX", 3600 * 24); // 24h cache
-  } else {
-    memoryCache.set(key, data);
+  if (redisClient && redisClient.status === "ready") {
+    try {
+      await redisClient.set(key, JSON.stringify(data), "EX", 3600 * 24); // 24h cache
+      return;
+    } catch (err) {
+      console.warn("⚠️ Redis image setCache error:", err.message);
+    }
   }
+  memoryCache.set(key, data);
 };
 
 // --- Image Providers ---
@@ -40,13 +48,13 @@ const PROVIDERS = {
     };
   },
   unsplash: async (query) => {
-    const url = `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}`;
-    // Unsplash random endpoint doesn’t give metadata, so we return static info
+    // source.unsplash.com is deprecated. We fall back to loremflickr which is active and free.
+    const url = `https://loremflickr.com/800/600/${encodeURIComponent(query)}`;
     return {
-      provider: "Unsplash",
+      provider: "Flickr (via LoremFlickr)",
       thumbnail: url,
       full: url,
-      photographer: "Unknown (Unsplash)",
+      photographer: "Flickr Community",
     };
   },
   pixabay: async (query) => {
