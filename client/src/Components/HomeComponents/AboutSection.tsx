@@ -1,15 +1,47 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { images } from '@/Assets/index'; 
 import type { AboutProps } from "@/hooks/types";
 
 export const AboutSection = React.forwardRef<HTMLDivElement , AboutProps>(({id}, ref ) => {
+  const [activeTab, setActiveTab] = useState<"engine" | "vision" | "perks">("engine");
+
+  const tabContent = {
+    engine: {
+      title: "Advanced Routing Engine",
+      text: "SafarNama utilizes standard geographic routing coupled with AI stop scoring models. We calculate travel distances, identify high-traffic segments, and fetch and verify top-rated stopovers, hotels, and local food venues along your path.",
+      points: [
+        "Smart intermediate stop discovery",
+        "Geocoded waypoint integration",
+        "Dhaba & restaurant quality indexation",
+      ]
+    },
+    vision: {
+      title: "Deep Cultural Immersion",
+      text: "We believe travel is about the journey, not just the destination. Our mission is to promote local Indian tourism, bringing travelers to historic landmarks, local artisans, and peaceful nature reserves that are otherwise hidden from major maps.",
+      points: [
+        "Promoting rural & regional economies",
+        "Highlighting historic roadside temples & forts",
+        "Curating nature escapes and photo viewpoints",
+      ]
+    },
+    perks: {
+      title: "State-of-the-Art Travel Intelligence",
+      text: "Experience customized travel like never before. Based on your companion selections, travel date, and driving preferences, we custom-score every potential hotel and eatery so you only see what is relevant to you.",
+      points: [
+        "Personalized timeline date offsets",
+        "Vehicle-specific rest advisory recommendations",
+        "Dynamic companion-focused stop categorization",
+      ]
+    }
+  };
+
   return (
     <section ref={ref} id={id} className="py-16 sm:py-20 lg:py-28 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <motion.div
-            className="space-y-5 sm:space-y-6"
+            className="space-y-5 sm:space-y-6 text-left"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -18,34 +50,69 @@ export const AboutSection = React.forwardRef<HTMLDivElement , AboutProps>(({id},
             <h3 className="text-green-600 font-bold text-sm sm:text-base md:text-lg">
               ABOUT US
             </h3>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
-              Your Smart AI-Powered Travel Guide
-            </h2>
-            <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-              Explore your journey like never before with our intelligent travel
-              assistant. We provide personalized recommendations of tourist
-              attractions, scenic stops, and top-rated food places along your
-              route. Plan smarter, travel better, and discover hidden gems
-              tailored to your trip.
-            </p>
-
-            <ul className="space-y-3 sm:space-y-4">
-              {[
-                "Personalized route suggestions",
-                "Top-rated attractions and eateries",
-                "Distance-aware and category-based filtering",
-              ].map((item, i) => (
-                <motion.li
-                  key={i}
-                  className="flex items-center text-sm sm:text-base"
-                  whileHover={{ x: 6 }}
-                  transition={{ duration: 0.3 }}
+            
+            {/* Interactive Tabs Headers */}
+            <div className="flex border-b border-gray-200 gap-4 sm:gap-6 text-sm font-semibold mb-4 overflow-x-auto whitespace-nowrap">
+              {(["engine", "vision", "perks"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`pb-2 border-b-2 transition duration-200 cursor-pointer ${
+                    activeTab === tab
+                      ? "border-green-600 text-green-600 font-bold"
+                      : "border-transparent text-gray-500 hover:text-green-500"
+                  }`}
                 >
-                  <span className="inline-block h-2.5 w-2.5 sm:h-3 sm:w-3 bg-green-500 rounded-full mr-3"></span>
-                  {item}
-                </motion.li>
+                  {tab === "engine" ? "AI Engine" : tab === "vision" ? "Our Vision" : "AI-Premium Perks"}
+                </button>
               ))}
-            </ul>
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25 }}
+                className="space-y-4"
+              >
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 leading-tight">
+                  {tabContent[activeTab].title}
+                </h2>
+                <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                  {tabContent[activeTab].text}
+                </p>
+
+                <ul className="space-y-2 sm:space-y-3">
+                  {tabContent[activeTab].points.map((item, i) => (
+                    <motion.li
+                      key={i}
+                      className="flex items-center text-sm sm:text-base text-gray-700"
+                      whileHover={{ x: 6 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <span className="inline-block h-2 w-2 bg-green-500 rounded-full mr-3 shrink-0"></span>
+                      {item}
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Stats Panel */}
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200 mt-6">
+              {[
+                { val: "10k+", label: "Planned Routes" },
+                { val: "500+", label: "Curated Stops" },
+                { val: "100%", label: "AI Scored" }
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <p className="text-2xl sm:text-3xl font-extrabold text-green-600">{stat.val}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider mt-1">{stat.label}</p>
+                </div>
+              ))}
+            </div>
 
           </motion.div>
 
