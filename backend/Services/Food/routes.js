@@ -51,8 +51,9 @@ router.get("/restaurants", async (req, res) => {
   try {
     const url =
       `${GEOAPIFY_BASE}?categories=catering.restaurant` +
-      `&lat=${lat}&lon=${lon}&radius=${radius}` +
-      `&limit=10&bias=countrycode:in&apiKey=${GEOAPIFY_KEY}`;
+      `&filter=circle:${lon},${lat},${radius}` +
+      `&bias=proximity:${lon},${lat}` +
+      `&limit=10&apiKey=${GEOAPIFY_KEY}`;
 
     const { data } = await axios.get(url);
 
@@ -91,8 +92,9 @@ router.get("/hotels", async (req, res) => {
   try {
     const url =
       `${GEOAPIFY_BASE}?categories=accommodation.hotel` +
-      `&lat=${lat}&lon=${lon}&radius=${radius}` +
-      `&limit=10&bias=countrycode:in&apiKey=${GEOAPIFY_KEY}`;
+      `&filter=circle:${lon},${lat},${radius}` +
+      `&bias=proximity:${lon},${lat}` +
+      `&limit=10&apiKey=${GEOAPIFY_KEY}`;
 
     const { data } = await axios.get(url);
 
@@ -128,8 +130,9 @@ router.get("/search", async (req, res) => {
   try {
     const url =
       `${GEOAPIFY_BASE}?categories=catering.${query.toLowerCase()}` +
-      `&lat=${lat}&lon=${lon}&radius=${radius}` +
-      `&limit=10&bias=countrycode:in&apiKey=${GEOAPIFY_KEY}`;
+      `&filter=circle:${lon},${lat},${radius}` +
+      `&bias=proximity:${lon},${lat}` +
+      `&limit=10&apiKey=${GEOAPIFY_KEY}`;
 
     const { data } = await axios.get(url);
 
