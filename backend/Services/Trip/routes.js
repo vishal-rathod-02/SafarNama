@@ -52,12 +52,21 @@ router.post("/generate", authMiddleware, async (req, res) => {
 
     let placesList = [];
     try {
-      const placesRes = await axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(destination)}`, { validateStatus: null });
-      if (placesRes.status === 200 && Array.isArray(placesRes.data?.places)) {
-        placesList = placesRes.data.places;
-      } else {
-        console.warn("⚠️ Places service returned non-200 or unexpected shape:", placesRes.status, placesRes.data);
-      }
+      const [sourcePlacesRes, destPlacesRes] = await Promise.all([
+        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(source)}&lat=${startCoords[0]}&lon=${startCoords[1]}`, { validateStatus: null }).catch(err => {
+          console.error("❌ Source Places service request failed:", err.message);
+          return null;
+        }),
+        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(destination)}&lat=${endCoords[0]}&lon=${endCoords[1]}`, { validateStatus: null }).catch(err => {
+          console.error("❌ Destination Places service request failed:", err.message);
+          return null;
+        })
+      ]);
+
+      const sourcePlaces = sourcePlacesRes && sourcePlacesRes.status === 200 && Array.isArray(sourcePlacesRes.data?.places) ? sourcePlacesRes.data.places : [];
+      const destPlaces = destPlacesRes && destPlacesRes.status === 200 && Array.isArray(destPlacesRes.data?.places) ? destPlacesRes.data.places : [];
+
+      placesList = [...sourcePlaces, ...destPlaces];
     } catch (err) {
       console.error("❌ Places service error:", err?.message || err);
       return res.status(502).json({ success: false, message: "Places service error", details: err?.message || err });
@@ -66,28 +75,32 @@ router.post("/generate", authMiddleware, async (req, res) => {
     let foodItems = [];
     let hotelItems = [];
     try {
-      const [foodRes, hotelsRes] = await Promise.all([
+      const [sourceFoodRes, sourceHotelsRes, destFoodRes, destHotelsRes] = await Promise.all([
+        axios.get(`${FOOD_URL}/api/food/restaurants?lat=${encodeURIComponent(startCoords[0])}&lon=${encodeURIComponent(startCoords[1])}`, { validateStatus: null }).catch(err => {
+          console.error("❌ Source Food service request failed:", err.message);
+          return null;
+        }),
+        axios.get(`${FOOD_URL}/api/food/hotels?lat=${encodeURIComponent(startCoords[0])}&lon=${encodeURIComponent(startCoords[1])}`, { validateStatus: null }).catch(err => {
+          console.error("❌ Source Hotels service request failed:", err.message);
+          return null;
+        }),
         axios.get(`${FOOD_URL}/api/food/restaurants?lat=${encodeURIComponent(endCoords[0])}&lon=${encodeURIComponent(endCoords[1])}`, { validateStatus: null }).catch(err => {
-          console.error("❌ Food service request failed:", err.message);
+          console.error("❌ Dest Food service request failed:", err.message);
           return null;
         }),
         axios.get(`${FOOD_URL}/api/food/hotels?lat=${encodeURIComponent(endCoords[0])}&lon=${encodeURIComponent(endCoords[1])}`, { validateStatus: null }).catch(err => {
-          console.error("❌ Hotels service request failed:", err.message);
+          console.error("❌ Dest Hotels service request failed:", err.message);
           return null;
         })
       ]);
 
-      if (foodRes && foodRes.status === 200) {
-        foodItems = Array.isArray(foodRes.data?.results) ? foodRes.data.results : [];
-      } else if (foodRes) {
-        console.warn("⚠️ Food service returned non-200:", foodRes.status, foodRes.data);
-      }
+      const sourceFood = sourceFoodRes && sourceFoodRes.status === 200 && Array.isArray(sourceFoodRes.data?.results) ? sourceFoodRes.data.results : [];
+      const sourceHotels = sourceHotelsRes && sourceHotelsRes.status === 200 && Array.isArray(sourceHotelsRes.data?.results) ? sourceHotelsRes.data.results : [];
+      const destFood = destFoodRes && destFoodRes.status === 200 && Array.isArray(destFoodRes.data?.results) ? destFoodRes.data.results : [];
+      const destHotels = destHotelsRes && destHotelsRes.status === 200 && Array.isArray(destHotelsRes.data?.results) ? destHotelsRes.data.results : [];
 
-      if (hotelsRes && hotelsRes.status === 200) {
-        hotelItems = Array.isArray(hotelsRes.data?.results) ? hotelsRes.data.results : [];
-      } else if (hotelsRes) {
-        console.warn("⚠️ Hotels service returned non-200:", hotelsRes.status, hotelsRes.data);
-      }
+      foodItems = [...sourceFood, ...destFood];
+      hotelItems = [...sourceHotels, ...destHotels];
     } catch (err) {
       console.error("❌ Food/Hotels fetch error:", err.message);
     }
@@ -122,7 +135,7 @@ router.post("/generate", authMiddleware, async (req, res) => {
       await newTrip.save();
     } catch (err) {
       console.error("❌ Save trip error:", err?.message || err);
-      
+
       return res.status(500).json({ success: false, message: "Failed to save trip", details: err?.message || err });
     }
 
