@@ -1,5 +1,5 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   EmailIcon,
   FacebookIcon,
@@ -9,8 +9,24 @@ import {
   ArrowRightIcon
 } from "@/Components/Shared/icons";
 import type { FooterProps } from '@/hooks/types';
+import { useToast } from "../Shared/ToastContext";
 
 export const Footer = React.forwardRef<HTMLDivElement , FooterProps>(({ onNavLinkClick, id }, ref) => {
+  const { addToast } = useToast();
+  const [subscribed, setSubscribed] = useState(false);
+  const [email, setEmail] = useState("");
+
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    addToast({ message: `${label} copied to clipboard!`, type: "success" });
+  };
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setSubscribed(true);
+    addToast({ message: "Thank you for subscribing to our newsletter!", type: "success" });
+  };
 
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
@@ -99,12 +115,17 @@ export const Footer = React.forwardRef<HTMLDivElement , FooterProps>(({ onNavLin
             <h3 className="text-white font-bold text-lg mb-4">Contact Us</h3>
             <ul className="space-y-4">
               {[
-                { icon: PhoneIcon, text: "+91 7666091322" },
-                { icon: EmailIcon, text: "safarnama@gmail.com" },
+                { icon: PhoneIcon, text: "+91 7666091322", label: "Phone number" },
+                { icon: EmailIcon, text: "safarnama@gmail.com", label: "Email address" },
               ].map((item, i) => (
-                <li key={i} className="flex items-start space-x-4">
+                <li
+                  key={i}
+                  onClick={() => handleCopy(item.text, item.label)}
+                  className="flex items-start space-x-4 cursor-pointer hover:bg-white/5 p-1 rounded transition duration-200"
+                  title={`Click to copy ${item.label}`}
+                >
                   <item.icon className="h-5 w-5 mt-1 text-green-500 shrink-0" />
-                  <span className="text-gray-400">{item.text}</span>
+                  <span className="text-gray-400 font-semibold">{item.text}</span>
                 </li>
               ))}
             </ul>
@@ -116,24 +137,49 @@ export const Footer = React.forwardRef<HTMLDivElement , FooterProps>(({ onNavLin
             viewport={{ once: true, amount: 0.2 }} custom={3}
           >
              <h3 className="text-white font-bold text-lg mb-4">Join Our Newsletter</h3>
-                <p className="mb-6 text-gray-400 text-sm leading-relaxed">
-                  Subscribe to receive our latest travel inspiration and exclusive offers.
-                </p>
-                <form className="relative">
-                  <EmailIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 " />
-                  <input
-                    type="email"
-                    placeholder="Your email address"
-                    className="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 pl-12 pr-14 py-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 transition-all"
-                  />
-                  <button
-                    type="submit"
-                    aria-label="Subscribe" 
-                    className="absolute right-1.5  top-1/2 -translate-y-1/2 p-2 bg-green-600 text-white rounded-md transition-all hover:bg-green-500 transform hover:scale-110"
-                  >
-                    <ArrowRightIcon className="w-5 h-5 " />
-                  </button>
-                </form>
+             <AnimatePresence mode="wait">
+               {!subscribed ? (
+                 <motion.div
+                   key="subscribe-form"
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   exit={{ opacity: 0 }}
+                   transition={{ duration: 0.3 }}
+                 >
+                   <p className="mb-6 text-gray-400 text-sm leading-relaxed">
+                     Subscribe to receive our latest travel inspiration and exclusive offers.
+                   </p>
+                   <form onSubmit={handleSubscribe} className="relative">
+                     <EmailIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 " />
+                     <input
+                       type="email"
+                       value={email}
+                       onChange={(e) => setEmail(e.target.value)}
+                       placeholder="Your email address"
+                       className="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 pl-12 pr-14 py-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 transition-all"
+                       required
+                     />
+                     <button
+                       type="submit"
+                       aria-label="Subscribe" 
+                       className="absolute right-1.5  top-1/2 -translate-y-1/2 p-2 bg-green-600 text-white rounded-md transition-all hover:bg-green-500 transform hover:scale-110 cursor-pointer"
+                     >
+                       <ArrowRightIcon className="w-5 h-5 " />
+                     </button>
+                   </form>
+                 </motion.div>
+               ) : (
+                 <motion.div
+                   key="subscribed-success"
+                   initial={{ opacity: 0, scale: 0.95 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   transition={{ duration: 0.4 }}
+                   className="p-4 bg-green-950/20 border border-green-500/30 text-green-400 text-sm rounded-xl text-center font-bold"
+                 >
+                   🎉 Subscribed successfully! Check your inbox.
+                 </motion.div>
+               )}
+             </AnimatePresence>
           </motion.div>
         </div>
       </div>
