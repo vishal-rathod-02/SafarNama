@@ -18,7 +18,7 @@ export const ActionCards: React.FC = () => {
           <Link
             key={card.title}
             to={card.path}
-            className={`bg-white shadow-lg rounded-2xl  p-6 flex flex-col justify-start gap-3 text-lefttransition-all duration-300 border-b-4 border-transparent hover:scale-[1.02] hover:shadow-2xl hover:border-green-500 
+            className={`bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-start gap-3 text-left transition-all duration-300 border-b-4 border-transparent hover:scale-[1.02] hover:shadow-2xl hover:border-green-500 
               ${index === 0 ? 'md:col-span-1' : ''} 
             `}
           >
