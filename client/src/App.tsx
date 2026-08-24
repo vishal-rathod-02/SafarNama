@@ -8,6 +8,7 @@ import { MainLayout } from "./Components/Shared/Layout/MainLayout";
 import { ResetPasswordPage } from "./Components/AuthComponents/ResetPasswordPage";
 import { VerifyEmailPage } from "./Components/AuthComponents/VerifyEmailPage";
 import { DashboardLayout } from "./Components/Shared/Layout/DashboardLayout";
+import { MyTripsPage } from "./Components/DashboardLayout/MyTrips";
 import { ToastType } from "./hooks/types";
 import { useAuth } from "./Components/AuthComponents/AuthContext";
 import { useAuthModal } from "./Components/AuthComponents/AuthModalContext";
@@ -99,6 +100,7 @@ const App: React.FC = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/mytrips" element={<MyTripsPage />} />
           </Route>
         </Route>
 
