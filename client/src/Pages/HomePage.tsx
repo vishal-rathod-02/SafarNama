@@ -117,7 +117,7 @@ export const HomePage: React.FC = () => {
   };
 
 const handleSearch = useCallback(
-  async ({ start, end }: SearchParams) => {
+  async ({ start, end, travelDate, travelCompanions, vehicleMode, tripPreference }: SearchParams) => {
 
     if (!isAuthenticated) {
       console.log("User not authenticated → opening auth modal");
@@ -162,6 +162,10 @@ const handleSearch = useCallback(
           sourceCoords: startCoords,
           destinationCoords: endCoords,
           routePolyline: tripData.route || [],
+          travelDate,
+          travelCompanions,
+          vehicleMode,
+          tripPreference,
         },
       });
     } catch (err: any) {
