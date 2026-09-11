@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import axios from "axios";
 import authMiddleware from "../../Middleware/Auth.js";
-import { createRateLimiter } from "../../Middleware/rateLimiter.js";
+import { tripGenRateLimiter } from "../../Middleware/rateLimiter.js";
 import { buildTripData } from "./AiEngine/FetchingEngine.js";
 import Trip from "./model.js";
 import { SERVICE_URLS } from "../../Config/serviceURLs.js";
@@ -13,23 +13,19 @@ const LOCATION_URL = SERVICE_URLS.LOCATION;
 const PLACES_URL = SERVICE_URLS.PLACES;
 const FOOD_URL = SERVICE_URLS.FOOD;
 
-// Rate limiter: Max 8 AI trip generation requests per minute per user/IP
-const generateRateLimiter = createRateLimiter({
-  windowMs: 60 * 1000,
-  max: 8,
-  message: "Trip generation rate limit reached. Please wait a minute before requesting another route."
-});
-
-router.post("/generate", authMiddleware, generateRateLimiter, async (req, res) => {
+router.post("/generate", authMiddleware, tripGenRateLimiter, async (req, res) => {
   try {
     const { source, destination, startCoords: clientStartCoords, endCoords: clientEndCoords } = req.body;
     const userId = req.user.id;
 
-    if (!source || !destination || typeof source !== "string" || typeof destination !== "string") {
+    if (!source || !destination || typeof source !== "string" || typeof destination !== "string" || !source.trim() || !destination.trim()) {
       return res.status(400).json({ success: false, message: "Valid source and destination strings are required." });
     }
 
-    console.log(`🚗 Generating trip for: ${source.trim()} → ${destination.trim()}`);
+    const cleanSource = source.trim().slice(0, 120);
+    const cleanDestination = destination.trim().slice(0, 120);
+
+    console.log(`🚗 Generating trip for: ${cleanSource} → ${cleanDestination}`);
 
     let startCoords = Array.isArray(clientStartCoords) && clientStartCoords.length === 2 ? clientStartCoords : null;
     let endCoords = Array.isArray(clientEndCoords) && clientEndCoords.length === 2 ? clientEndCoords : null;
@@ -37,8 +33,8 @@ router.post("/generate", authMiddleware, generateRateLimiter, async (req, res) =
     if (!startCoords || !endCoords) {
       try {
         const [srcRes, destRes] = await Promise.all([
-          axios.get(`${LOCATION_URL}/api/geocode?locationName=${encodeURIComponent(source)}`, { validateStatus: null, timeout: 8000 }),
-          axios.get(`${LOCATION_URL}/api/geocode?locationName=${encodeURIComponent(destination)}`, { validateStatus: null, timeout: 8000 }),
+          axios.get(`${LOCATION_URL}/api/geocode?locationName=${encodeURIComponent(cleanSource)}`, { validateStatus: null, timeout: 8000 }),
+          axios.get(`${LOCATION_URL}/api/geocode?locationName=${encodeURIComponent(cleanDestination)}`, { validateStatus: null, timeout: 8000 }),
         ]);
 
         if (srcRes.status !== 200 || destRes.status !== 200) {
@@ -61,11 +57,11 @@ router.post("/generate", authMiddleware, generateRateLimiter, async (req, res) =
     let placesList = [];
     try {
       const [sourcePlacesRes, destPlacesRes] = await Promise.all([
-        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(source)}&lat=${startCoords[0]}&lon=${startCoords[1]}`, { validateStatus: null, timeout: 8000 }).catch(err => {
+        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(cleanSource)}&lat=${startCoords[0]}&lon=${startCoords[1]}`, { validateStatus: null, timeout: 8000 }).catch(err => {
           console.error("❌ Source Places service request failed:", err.message);
           return null;
         }),
-        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(destination)}&lat=${endCoords[0]}&lon=${endCoords[1]}`, { validateStatus: null, timeout: 8000 }).catch(err => {
+        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(cleanDestination)}&lat=${endCoords[0]}&lon=${endCoords[1]}`, { validateStatus: null, timeout: 8000 }).catch(err => {
           console.error("❌ Destination Places service request failed:", err.message);
           return null;
         })
@@ -116,7 +112,7 @@ router.post("/generate", authMiddleware, generateRateLimiter, async (req, res) =
 
     let tripData;
     try {
-      tripData = await buildTripData(source, destination, startCoords, endCoords, placesData);
+      tripData = await buildTripData(cleanSource, cleanDestination, startCoords, endCoords, placesData);
     } catch (err) {
       console.error("❌ buildTripData error:", err?.message || err);
       return res.status(500).json({ success: false, message: "AI trip generation encountered an error. Please try again." });
@@ -130,8 +126,8 @@ router.post("/generate", authMiddleware, generateRateLimiter, async (req, res) =
     try {
       const newTrip = new Trip({
         user: userId,
-        source,
-        destination,
+        source: cleanSource,
+        destination: cleanDestination,
         distance: tripData.distance,
         duration: tripData.duration,
         summary: tripData.summary,
@@ -168,7 +164,7 @@ router.post("/save", authMiddleware, async (req, res) => {
       duration,
     } = req.body;
 
-    if (!source || !destination || !summary) {
+    if (!source || !destination || !summary || typeof source !== "string" || typeof destination !== "string") {
       return res.status(400).json({
         success: false,
         error: "Missing required fields.",
@@ -177,14 +173,14 @@ router.post("/save", authMiddleware, async (req, res) => {
 
     const newTrip = new Trip({
       user: userId,
-      source,
-      destination,
-      distance,
-      duration,
-      summary,
-      highlights,
-      itinerary,
-      places,
+      source: source.trim().slice(0, 120),
+      destination: destination.trim().slice(0, 120),
+      distance: Number(distance) || 0,
+      duration: typeof duration === "string" ? duration.slice(0, 50) : "",
+      summary: typeof summary === "string" ? summary.slice(0, 2000) : "",
+      highlights: Array.isArray(highlights) ? highlights.slice(0, 30) : [],
+      itinerary: Array.isArray(itinerary) ? itinerary.slice(0, 30) : [],
+      places: Array.isArray(places) ? places.slice(0, 50) : [],
     });
 
     const savedTrip = await newTrip.save();

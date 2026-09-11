@@ -79,6 +79,8 @@ async function geocodeQuery(queryName) {
 // Get popular destinations
 router.get("/popular", async (req, res) => {
   const { countryCode = "IN", limit = 10 } = req.query;
+  const cleanCountryCode = typeof countryCode === "string" ? countryCode.trim().slice(0, 2).toUpperCase() : "IN";
+  const parsedLimit = Math.min(Math.max(Number(limit) || 10, 1), 30);
   const GEODB_BASE_URL = "https://wft-geo-db.p.rapidapi.com/v1/geo";
   const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 
@@ -86,9 +88,9 @@ router.get("/popular", async (req, res) => {
     // Try GeoDB first, but fall back gracefully to avoid rate-limiting crashes
     const response = await axios.get(`${GEODB_BASE_URL}/cities`, {
       params: {
-        countryIds: countryCode,
+        countryIds: cleanCountryCode,
         sort: "-population",
-        limit,
+        limit: parsedLimit,
       },
       headers: {
         "X-RapidAPI-Key": RAPIDAPI_KEY,
@@ -117,7 +119,7 @@ router.get("/popular", async (req, res) => {
   } catch (err) {
     console.warn("⚠️ GeoDB Popular Destinations failed, using high-quality static fallback:", err.message);
 
-    const places = POPULAR_INDIAN_CITIES.slice(0, Number(limit)).map((city) => ({
+    const places = POPULAR_INDIAN_CITIES.slice(0, parsedLimit).map((city) => ({
       ...city,
       description: `${city.name} is a popular travel destination in ${city.region}, ${city.country}.`,
       category: "City",
@@ -134,8 +136,13 @@ router.get("/popular", async (req, res) => {
 // Search tourist attractions/sights near a query city or coordinates
 router.get("/search", async (req, res) => {
   const { query, lat, lon } = req.query;
-  if (!query && (!lat || !lon)) {
-    return res.status(400).json({ error: "Query parameter or coordinates (lat, lon) are required" });
+  const cleanQuery = typeof query === "string" ? query.trim().slice(0, 120) : "";
+  const numLat = parseFloat(lat);
+  const numLon = parseFloat(lon);
+  const hasCoords = !isNaN(numLat) && !isNaN(numLon) && numLat >= -90 && numLat <= 90 && numLon >= -180 && numLon <= 180;
+
+  if (!cleanQuery && !hasCoords) {
+    return res.status(400).json({ error: "Valid query string or coordinates (lat [-90..90], lon [-180..180]) are required" });
   }
 
   const geoapifyKey = process.env.GEOAPIFY_API_KEY;
@@ -146,14 +153,14 @@ router.get("/search", async (req, res) => {
 
   try {
     let coords = null;
-    if (lat && lon) {
-      coords = [parseFloat(lat), parseFloat(lon)];
-    } else if (query) {
-      coords = await geocodeQuery(query);
+    if (hasCoords) {
+      coords = [numLat, numLon];
+    } else if (cleanQuery) {
+      coords = await geocodeQuery(cleanQuery);
     }
 
     if (!coords) {
-      console.warn(`⚠️ Could not determine coordinates for query: "${query}"`);
+      console.warn(`⚠️ Could not determine coordinates for query: "${cleanQuery}"`);
       return res.json({ success: true, count: 0, places: [] });
     }
 
@@ -204,7 +211,7 @@ router.get("/search", async (req, res) => {
 
     // If no specific attractions were found, return the city itself as a destination card
     if (places.length === 0) {
-      const name = query ? query.split(",")[0] : "Destination";
+      const name = cleanQuery ? cleanQuery.split(",")[0] : "Destination";
       places.push({
         id: `city-${latVal}-${lonVal}`,
         name: name,
@@ -216,7 +223,7 @@ router.get("/search", async (req, res) => {
         description: `Explore the vibrant city of ${name} and its local culture.`,
         rating: 4.5,
         reviews: 120,
-        location: query || `${latVal}, ${lonVal}`,
+        location: cleanQuery || `${latVal}, ${lonVal}`,
         status: "Open for visitors"
       });
     }
@@ -231,9 +238,14 @@ router.get("/search", async (req, res) => {
 // Get nearby attractions using coordinates
 router.get("/nearby", async (req, res) => {
   const { lat, lon, radius = 10000 } = req.query;
-  if (!lat || !lon) {
-    return res.status(400).json({ error: "Latitude and longitude required" });
+  const numLat = parseFloat(lat);
+  const numLon = parseFloat(lon);
+
+  if (isNaN(numLat) || isNaN(numLon) || numLat < -90 || numLat > 90 || numLon < -180 || numLon > 180) {
+    return res.status(400).json({ error: "Valid latitude (-90 to 90) and longitude (-180 to 180) are required" });
   }
+
+  const boundedRadius = Math.min(Math.max(Number(radius) || 10000, 500), 50000);
 
   const geoapifyKey = process.env.GEOAPIFY_API_KEY;
   if (!geoapifyKey) {
@@ -246,8 +258,8 @@ router.get("/nearby", async (req, res) => {
     const response = await axios.get(geoapifyUrl, {
       params: {
         categories: "tourism.attraction,tourism.sights,entertainment.museum,leisure.park,building.historic,religion.place_of_worship",
-        filter: `circle:${lon},${lat},${radius}`,
-        bias: `proximity:${lon},${lat}`,
+        filter: `circle:${numLon},${numLat},${boundedRadius}`,
+        bias: `proximity:${numLon},${numLat}`,
         limit: 10,
         apiKey: geoapifyKey,
       },

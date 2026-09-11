@@ -28,6 +28,10 @@ async function setCache(key, value, ttl = 3600) {
       console.warn("⚠️ Redis setCache error:", err.message);
     }
   }
+  if (memoryCache.size > 2000) {
+    const firstKey = memoryCache.keys().next().value;
+    if (firstKey) memoryCache.delete(firstKey);
+  }
   memoryCache.set(key, value);
 }
 
@@ -40,22 +44,26 @@ const GEOAPIFY_KEY = process.env.GEOAPIFY_API_KEY;
 // 🍴 Get Nearby Restaurants
 router.get("/restaurants", async (req, res) => {
   const { lat, lon, radius = 3000 } = req.query;
-  if (!lat || !lon) {
-    return res.status(400).json({ error: "Latitude and longitude required" });
+  const numLat = parseFloat(lat);
+  const numLon = parseFloat(lon);
+
+  if (isNaN(numLat) || isNaN(numLon) || numLat < -90 || numLat > 90 || numLon < -180 || numLon > 180) {
+    return res.status(400).json({ error: "Valid latitude (-90 to 90) and longitude (-180 to 180) are required" });
   }
 
-  const cacheKey = `restaurants:${lat}:${lon}`;
+  const boundedRadius = Math.min(Math.max(Number(radius) || 3000, 500), 50000);
+  const cacheKey = `restaurants:${numLat.toFixed(4)}:${numLon.toFixed(4)}`;
   const cached = await getCache(cacheKey);
   if (cached) return res.json({ fromCache: true, results: cached });
 
   try {
     const url =
       `${GEOAPIFY_BASE}?categories=catering.restaurant` +
-      `&filter=circle:${lon},${lat},${radius}` +
-      `&bias=proximity:${lon},${lat}` +
+      `&filter=circle:${numLon},${numLat},${boundedRadius}` +
+      `&bias=proximity:${numLon},${numLat}` +
       `&limit=10&apiKey=${GEOAPIFY_KEY}`;
 
-    const { data } = await axios.get(url);
+    const { data } = await axios.get(url, { timeout: 5000 });
 
     const results = (data.features || []).map((f) => ({
       id: f.properties.place_id,
@@ -81,22 +89,26 @@ router.get("/restaurants", async (req, res) => {
 //  Get Nearby Hotels
 router.get("/hotels", async (req, res) => {
   const { lat, lon, radius = 5000 } = req.query;
-  if (!lat || !lon) {
-    return res.status(400).json({ error: "Latitude and longitude required" });
+  const numLat = parseFloat(lat);
+  const numLon = parseFloat(lon);
+
+  if (isNaN(numLat) || isNaN(numLon) || numLat < -90 || numLat > 90 || numLon < -180 || numLon > 180) {
+    return res.status(400).json({ error: "Valid latitude (-90 to 90) and longitude (-180 to 180) are required" });
   }
 
-  const cacheKey = `hotels:${lat}:${lon}`;
+  const boundedRadius = Math.min(Math.max(Number(radius) || 5000, 500), 50000);
+  const cacheKey = `hotels:${numLat.toFixed(4)}:${numLon.toFixed(4)}`;
   const cached = await getCache(cacheKey);
   if (cached) return res.json({ fromCache: true, results: cached });
 
   try {
     const url =
       `${GEOAPIFY_BASE}?categories=accommodation.hotel` +
-      `&filter=circle:${lon},${lat},${radius}` +
-      `&bias=proximity:${lon},${lat}` +
+      `&filter=circle:${numLon},${numLat},${boundedRadius}` +
+      `&bias=proximity:${numLon},${numLat}` +
       `&limit=10&apiKey=${GEOAPIFY_KEY}`;
 
-    const { data } = await axios.get(url);
+    const { data } = await axios.get(url, { timeout: 5000 });
 
     const results = (data.features || []).map((f) => ({
       id: f.properties.place_id,
@@ -123,23 +135,29 @@ router.get("/hotels", async (req, res) => {
 //  Search by term (e.g., "cafe", "dhaba")
 router.get("/search", async (req, res) => {
   const { query, lat, lon, radius = 3000 } = req.query;
-  if (!query || !lat || !lon) {
-    return res.status(400).json({ error: "Query, latitude, longitude required" });
+  const numLat = parseFloat(lat);
+  const numLon = parseFloat(lon);
+
+  if (!query || typeof query !== "string" || !query.trim() || isNaN(numLat) || isNaN(numLon) || numLat < -90 || numLat > 90 || numLon < -180 || numLon > 180) {
+    return res.status(400).json({ error: "Query and valid latitude (-90 to 90) and longitude (-180 to 180) are required" });
   }
+
+  const cleanQuery = query.trim().slice(0, 60).replace(/[^a-zA-Z0-9_\- ]/g, "");
+  const boundedRadius = Math.min(Math.max(Number(radius) || 3000, 500), 50000);
 
   try {
     const url =
-      `${GEOAPIFY_BASE}?categories=catering.${query.toLowerCase()}` +
-      `&filter=circle:${lon},${lat},${radius}` +
-      `&bias=proximity:${lon},${lat}` +
+      `${GEOAPIFY_BASE}?categories=catering.${cleanQuery.toLowerCase()}` +
+      `&filter=circle:${numLon},${numLat},${boundedRadius}` +
+      `&bias=proximity:${numLon},${numLat}` +
       `&limit=10&apiKey=${GEOAPIFY_KEY}`;
 
-    const { data } = await axios.get(url);
+    const { data } = await axios.get(url, { timeout: 5000 });
 
     const results = (data.features || []).map((f) => ({
       id: f.properties.place_id,
-      name: f.properties.name || query,
-      category: query,
+      name: f.properties.name || cleanQuery,
+      category: cleanQuery,
       address: f.properties.formatted,
       rating: (Math.random() * 2 + 3).toFixed(1),
       image: null,

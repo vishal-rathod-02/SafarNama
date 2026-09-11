@@ -34,6 +34,11 @@ async function setCache(key, data) {
       console.warn("⚠️ Redis setCache error in Location service:", err.message);
     }
   }
+  // Prevent unbounded memory cache growth (max 2000 entries)
+  if (memoryCache.size > 2000) {
+    const firstKey = memoryCache.keys().next().value;
+    if (firstKey) memoryCache.delete(firstKey);
+  }
   memoryCache.set(key, { data, timestamp: Date.now() });
 }
 
@@ -48,9 +53,13 @@ router.use(limiter);
 // --- 3. Autocomplete Endpoint ---
 router.get("/autocomplete", async (req, res) => {
   const { input } = req.query;
-  if (!input) return res.status(400).json({ error: "Input query is required" });
+  if (!input || typeof input !== "string" || !input.trim()) {
+    return res.status(400).json({ error: "Input query is required" });
+  }
 
-  const cacheKey = `autocomplete:${input.toLowerCase()}`;
+  const cleanInput = input.trim().slice(0, 120);
+
+  const cacheKey = `autocomplete:${cleanInput.toLowerCase()}`;
   const cached = await getCache(cacheKey);
   if (cached) {
     return res.json(cached);
@@ -61,7 +70,7 @@ router.get("/autocomplete", async (req, res) => {
     try {
       const response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
-          q: input,
+          q: cleanInput,
           format: "json",
           countrycodes: "in",
           limit: 8,
@@ -116,7 +125,7 @@ router.get("/autocomplete", async (req, res) => {
       const geoapifyUrl = `https://api.geoapify.com/v1/geocode/autocomplete`;
       const response = await axios.get(geoapifyUrl, {
         params: {
-          text: input,
+          text: cleanInput,
           filter: "countrycode:in",
           limit: 8,
           apiKey: process.env.GEOAPIFY_API_KEY
@@ -149,10 +158,13 @@ router.get("/autocomplete", async (req, res) => {
 // --- 4. Geocoding Endpoint ---
 router.get("/geocode", async (req, res) => {
   const { locationName } = req.query;
-  if (!locationName)
+  if (!locationName || typeof locationName !== "string" || !locationName.trim()) {
     return res.status(400).json({ error: "locationName query is required" });
+  }
 
-  const cacheKey = `geocode:${locationName.toLowerCase()}`;
+  const cleanLocationName = locationName.trim().slice(0, 120);
+
+  const cacheKey = `geocode:${cleanLocationName.toLowerCase()}`;
   const cached = await getCache(cacheKey);
   if (cached) {
     return res.json(cached);
@@ -163,7 +175,7 @@ router.get("/geocode", async (req, res) => {
     try {
       const response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
-          q: locationName,
+          q: cleanLocationName,
           format: "json",
           limit: 1,
           countrycodes: "in",
@@ -184,7 +196,7 @@ router.get("/geocode", async (req, res) => {
       const geoapifyUrl = `https://api.geoapify.com/v1/geocode/search`;
       const response = await axios.get(geoapifyUrl, {
         params: {
-          text: locationName,
+          text: cleanLocationName,
           filter: "countrycode:in",
           limit: 1,
           apiKey: process.env.GEOAPIFY_API_KEY
@@ -201,7 +213,7 @@ router.get("/geocode", async (req, res) => {
     await setCache(cacheKey, data);
     res.json(data);
   } catch (error) {
-    console.error(`❌ Geocoding failed for ${locationName}:`, error.message);
+    console.error(`❌ Geocoding failed for ${cleanLocationName}:`, error.message);
     res.status(500).json({ error: "Failed to geocode location" });
   }
 });
