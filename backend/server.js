@@ -17,6 +17,18 @@ import { errorHandler } from "./Middleware/errorHandler.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 🔒 1. Disable Fingerprinting
+app.disable("x-powered-by");
+
+// 🔒 2. Standard HTTP Security Headers
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  next();
+});
+
 // --- Global Middleware ---
 app.use(cookieParser());
 app.use(
@@ -31,7 +43,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.use(express.json());
+// 🔒 3. Safe Payload Size Limits to Prevent Memory Flooding
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 // --- Logger Middleware ---
 app.use((req, res, next) => {
