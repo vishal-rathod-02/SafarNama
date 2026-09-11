@@ -158,12 +158,12 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
             transition={{ delay: 0.6, duration: 1.2 }}
           >
             {typedText}
-            <span className="animate-pulse text-green-400 font-bold">|</span>
+            <span className="animate-pulse text-amber-400 font-bold">|</span>
           </motion.p>
 
           {/* Search Box */}
           <motion.div
-            className="bg-white/1 backdrop-blur-md p-6 rounded-2xl w-full max-w-md mx-auto border border-white/15 shadow-2xl"
+            className="bg-white/10 dark:bg-slate-900/70 backdrop-blur-xl p-6 rounded-2xl w-full max-w-md mx-auto border border-white/20 dark:border-amber-500/20 shadow-2xl shadow-black/40"
             initial="hidden"
             animate="visible"
             transition={{ staggerChildren: 0.1, delayChildren: 1 }}
@@ -177,8 +177,8 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                   placeholder="Enter Source"
                   icon={MapPinIcon}
                   iconColor={{
-                    default: "text-blue-400",
-                    focused: "text-blue-600",
+                    default: "text-amber-400",
+                    focused: "text-amber-500",
                   }}
                   type="source"
                 />
@@ -202,7 +202,7 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                 >
                   <ArrowUpDown
                     className={`w-5 h-5 transition-all duration-300 ${isSwapping && !isSwapDisabled
-                        ? "rotate-180 text-green-400"
+                        ? "rotate-180 text-amber-400"
                         : ""
                       }`}
                   />
@@ -217,10 +217,10 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 5 }}
                       transition={{ duration: 0.25 }}
-                      className="pointer-events-none absolute z-100 top-full  left-1/2 -translate-x-1/2  group-hover:opacity-100 ">
-                      <div className="relative bg-gray-900 text-white text-xs px-5 py-1 rounded shadow-md border border-gray-700">
+                      className="pointer-events-none absolute z-100 top-full left-1/2 -translate-x-1/2 group-hover:opacity-100">
+                      <div className="relative bg-slate-900 text-white text-xs px-5 py-1 rounded-md shadow-lg border border-slate-700">
                         <span>Please fill both Source and Destination to swap.</span>
-                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-gray-900 border-l border-t border-gray-700" />
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-slate-900 border-l border-t border-slate-700" />
                       </div>
                     </motion.div>
                   )}
@@ -235,8 +235,8 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                   placeholder="Enter Destination"
                   icon={DestinationIcon}
                   iconColor={{
-                    default: "text-red-400",
-                    focused: "text-red-600",
+                    default: "text-emerald-400",
+                    focused: "text-emerald-500",
                   }}
                   type="destination"
                 />
@@ -244,7 +244,7 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
 
               {/* Suggestion Chips */}
               <motion.div variants={formItemVariants} className="flex flex-wrap items-center justify-start gap-1.5 mt-1 px-1">
-                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mr-1">Popular:</span>
+                <span className="text-[10px] text-amber-300/90 font-bold uppercase tracking-wider mr-1">Popular:</span>
                 {[
                   { name: "Vrindavan, Uttar Pradesh", label: "Vrindavan 🪔" },
                   { name: "Jaipur, Rajasthan", label: "Jaipur 🏛️" },
@@ -255,7 +255,7 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                     key={chip.name}
                     type="button"
                     onClick={() => onDestinationChange(chip.name)}
-                    className="text-[10px] font-semibold text-gray-200 bg-white/10 hover:bg-green-500/20 hover:text-green-300 border border-white/10 hover:border-green-500/30 px-2 py-0.5 rounded-full transition cursor-pointer"
+                    className="text-[10px] font-semibold text-slate-100 bg-white/10 hover:bg-amber-500/25 hover:text-amber-300 border border-white/15 hover:border-amber-400/40 px-2 py-0.5 rounded-full transition cursor-pointer"
                   >
                     {chip.label}
                   </button>
@@ -267,7 +267,7 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                 <button
                   type="button"
                   onClick={() => setShowSettings(!showSettings)}
-                  className="text-xs text-green-400 hover:text-green-300 font-bold transition flex items-center justify-center gap-1.5 ml-auto cursor-pointer"
+                  className="text-xs text-amber-400 hover:text-amber-300 font-bold transition flex items-center justify-center gap-1.5 ml-auto cursor-pointer"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
                   {showSettings ? "Hide Customization" : "Customize Smart Preferences"}
@@ -282,32 +282,32 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="overflow-hidden flex flex-col gap-3.5 pt-3 border-t border-white/10 mt-1 text-left"
+                    className="overflow-hidden flex flex-col gap-3.5 pt-3 border-t border-white/15 mt-1 text-left"
                   >
                     {/* Date & Companions */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-gray-300 mb-1 items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-green-400" />
+                        <label className="block text-[10px] uppercase font-bold text-slate-200 mb-1 items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5 text-amber-400" />
                           Travel Date
                         </label>
                         <input
                           type="date"
                           value={travelDate}
                           onChange={(e) => setTravelDate(e.target.value)}
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-green-400"
+                          className="w-full bg-slate-900/60 border border-white/20 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-400"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-gray-300 mb-1 items-center gap-1">
-                          <Users className="w-3.5 h-3.5 text-green-400" />
+                        <label className="block text-[10px] uppercase font-bold text-slate-200 mb-1 items-center gap-1">
+                          <Users className="w-3.5 h-3.5 text-amber-400" />
                           Companions
                         </label>
                         <select
                           value={travelCompanions}
                           onChange={(e) => setTravelCompanions(e.target.value)}
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-green-400 [&>option]:text-gray-900"
+                          className="w-full bg-slate-900/60 border border-white/20 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-400 [&>option]:text-slate-900"
                         >
                           <option value="Solo">Solo Traveler</option>
                           <option value="Couple">Couple</option>
@@ -319,8 +319,8 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
 
                     {/* Travel Mode Selector (Chips) */}
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-gray-300 mb-1.5 items-center gap-1">
-                        <Car className="w-3.5 h-3.5 text-green-400" />
+                      <label className="block text-[10px] uppercase font-bold text-slate-200 mb-1.5 items-center gap-1">
+                        <Car className="w-3.5 h-3.5 text-amber-400" />
                         Vehicle / Travel Mode
                       </label>
                       <div className="flex gap-1.5">
@@ -333,9 +333,9 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                             key={mode.value}
                             type="button"
                             onClick={() => setVehicleMode(mode.value)}
-                            className={`flex-1 text-center py-1.5 text-[11px] font-semibold rounded-lg border transition-all duration-200 cursor-pointer ${vehicleMode === mode.value
-                                ? "bg-green-500 border-green-500 text-white shadow-sm"
-                                : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+                            className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg border transition-all duration-200 cursor-pointer ${vehicleMode === mode.value
+                                ? "bg-amber-500 border-amber-400 text-slate-950 shadow-md shadow-amber-500/30"
+                                : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
                               }`}
                           >
                             {mode.label}
@@ -346,8 +346,8 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
 
                     {/* Trip Style Preference (Chips) */}
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-gray-300 mb-1.5 items-center gap-1">
-                        <Heart className="w-3.5 h-3.5 text-green-400" />
+                      <label className="block text-[10px] uppercase font-bold text-slate-200 mb-1.5 items-center gap-1">
+                        <Heart className="w-3.5 h-3.5 text-amber-400" />
                         Trip Style / Preference
                       </label>
                       <div className="grid grid-cols-2 gap-1.5">
@@ -361,9 +361,9 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                             key={pref.value}
                             type="button"
                             onClick={() => setTripPreference(pref.value)}
-                            className={`text-center py-1.5 text-[11px] font-semibold rounded-lg border transition-all duration-200 cursor-pointer ${tripPreference === pref.value
-                                ? "bg-green-500 border-green-500 text-white shadow-sm"
-                                : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+                            className={`text-center py-1.5 text-[11px] font-bold rounded-lg border transition-all duration-200 cursor-pointer ${tripPreference === pref.value
+                                ? "bg-amber-500 border-amber-400 text-slate-950 shadow-md shadow-amber-500/30"
+                                : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
                               }`}
                           >
                             {pref.label}
@@ -375,7 +375,7 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                 )}
               </AnimatePresence>
 
-              {/* Search Button + Tooltip on invalid submit */}
+              {/* Radiant Amber Search Button */}
               <motion.div variants={formItemVariants} className="relative mt-2">
                 <motion.button
                   type="submit"
@@ -384,15 +384,15 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                   whileHover={
                     !isSearchDisabled && !isLoading ? { scale: 1.02 } : undefined
                   }
-                  className={`group w-full flex justify-center items-center gap-3 py-3 rounded-lg text-lg font-semibold text-white transition-all
+                  className={`group w-full flex justify-center items-center gap-3 py-3.5 rounded-xl text-lg font-extrabold transition-all cursor-pointer
                     ${isSearchDisabled
-                      ? "bg-linear-to-r from-green-400/60 to-emerald-500/60 cursor-not-allowed"
-                      : "bg-linear-to-r from-green-500 to-emerald-600 shadow-md hover:shadow-[0_0_20px_rgba(16,185,129,0.5)]"
+                      ? "bg-amber-500/40 text-slate-900/60 border border-amber-500/30 cursor-not-allowed"
+                      : "bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 active:shadow-none"
                     }`}
                 >
                   <span>{isLoading ? "Planning Route..." : "Search Route"}</span>
                   {!isLoading && !isSearchDisabled && (
-                    <span className="inline-flex transform transition-transform duration-200 group-hover:translate-x-1">
+                    <span className="inline-flex transform transition-transform duration-200 group-hover:translate-x-1 text-slate-950">
                       <SearchArrowIcon className="w-5 h-5" />
                     </span>
                   )}
@@ -408,9 +408,9 @@ export const Hero = React.forwardRef<HTMLDivElement, HeroProps>(
                       transition={{ duration: 0.18 }}
                       className="pointer-events-none absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-group-hover:opacity-100 transition"
                     >
-                      <div className="relative bg-gray-900 text-white text-xs px-3 py-1 rounded shadow-md border border-gray-700">
+                      <div className="relative bg-slate-900 text-white text-xs px-3 py-1 rounded shadow-md border border-slate-700">
                         <span>Please fill both Source and Destination to search.</span>
-                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-gray-900 border-l border-t border-gray-700" />
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-slate-900 border-l border-t border-slate-700" />
                       </div>
                     </motion.div>
                   )}
