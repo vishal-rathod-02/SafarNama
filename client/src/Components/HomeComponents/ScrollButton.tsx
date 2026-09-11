@@ -24,23 +24,22 @@ export const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ isVisible 
             className={`
               fixed bottom-6 right-6 md:bottom-8 md:right-8
               z-50 flex items-center justify-center
-              rounded-full backdrop-blur-lg
-              bg-white/90 text-gray-600 border-2 border-green-400
-              shadow-md hover:shadow-xl
+              rounded-full backdrop-blur-xl
+              bg-linear-to-r from-amber-500 to-amber-600 text-slate-950
+              shadow-lg shadow-amber-500/35 hover:shadow-amber-500/60
               w-12 h-12 md:w-14 md:h-14
               transition-all duration-300 ease-out
-              hover:bg-green-600 hover:text-white
-              hover:border-none
-              focus:outline-none 
+              hover:scale-110 cursor-pointer border border-amber-300/40
+              focus:outline-none focus:ring-2 focus:ring-amber-400
             `}
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            whileHover={{ scale: 1.07 }}
-            whileTap={{ scale: 0.93 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
           >
-            <ArrowUpIcon className="w-6 h-6 md:w-7 md:h-7" />
+            <ArrowUpIcon className="w-6 h-6 md:w-7 md:h-7 stroke-[2.5]" />
           </motion.button>
 
           {/* Tooltip */}
@@ -55,9 +54,9 @@ export const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ isVisible 
                 className="
                   fixed bottom-20 right-6 md:bottom-[5.9rem] md:right-8
                   z-50 px-3 py-1.5 rounded-lg
-                  text-sm font-medium
-                  bg-gray-800/90 text-white
-                  shadow-lg backdrop-blur-sm
+                  text-xs font-bold
+                  bg-slate-900/90 text-amber-300 border border-slate-700
+                  shadow-lg backdrop-blur-md
                 "
               >
                 Back to top
