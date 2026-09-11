@@ -9,7 +9,7 @@ import { TripService } from "@/Services/Trip/Trip.service";
 const StatsSkeleton = () => (
   <div className="flex flex-col space-y-4 animate-pulse">
     {[1, 2, 3].map((i) => (
-      <div key={i} className="h-28 bg-gray-200 dark:bg-gray-800 rounded-xl w-full" />
+      <div key={i} className="h-28 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full" />
     ))}
   </div>
 );
@@ -35,21 +35,21 @@ export const StatsPanel: React.FC = () => {
             title: "Total Trips",
             value: data.overview?.totalTrips || 0,
             description: "Total trips you've successfully planned.",
-            color: "green",
+            color: "amber",
             icon: Globe,
           },
           {
             title: "Total Distance (km)",
             value: data.overview?.totalDistance ? Math.round(data.overview.totalDistance / 1000) : 0,
             description: "Total travel distance covered.",
-            color: "blue",
+            color: "emerald",
             icon: TrendingUp,
           },
           {
             title: "Top Destination",
             value: data.overview?.topDestination || "None",
             description: "Your most visited location.",
-            color: "yellow",
+            color: "blue",
             icon: MapPin,
           },
         ];
@@ -66,9 +66,9 @@ export const StatsPanel: React.FC = () => {
   if (loading) return <StatsSkeleton />;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 h-full flex flex-col border border-slate-100/50 dark:border-gray-700">
-      <h3 className="text-xl font-extrabold text-gray-900 dark:text-slate-100 mb-5 border-b border-slate-100 dark:border-gray-700 pb-3 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+    <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-6 sm:p-8 h-full flex flex-col border border-slate-200/80 dark:border-slate-800">
+      <h3 className="text-xl font-black text-slate-900 dark:text-white mb-5 border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2">
+        <TrendingUp className="w-5 h-5 text-amber-500" />
         Your Travel Stats
       </h3>
 
@@ -88,28 +88,28 @@ export const StatsPanel: React.FC = () => {
             
             // Dynamic scheme mappings based on stats color category
             const colors = {
-              green: {
-                icon: "text-green-600 bg-green-50 dark:bg-green-950/20",
-                value: "text-green-700 dark:text-green-400",
-                hover: "hover:border-green-300 dark:hover:border-green-900 hover:shadow-green-500/5 hover:bg-green-50/50 dark:hover:bg-green-950/5",
+              amber: {
+                icon: "text-amber-600 dark:text-amber-400 bg-amber-500/15",
+                value: "text-amber-600 dark:text-amber-400",
+                hover: "hover:border-amber-400 dark:hover:border-amber-600 hover:shadow-amber-500/10 hover:bg-amber-500/5",
+              },
+              emerald: {
+                icon: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/15",
+                value: "text-emerald-600 dark:text-emerald-400",
+                hover: "hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-emerald-500/10 hover:bg-emerald-500/5",
               },
               blue: {
-                icon: "text-blue-600 bg-blue-50 dark:bg-blue-950/20",
-                value: "text-blue-700 dark:text-blue-400",
-                hover: "hover:border-blue-300 dark:hover:border-blue-900 hover:shadow-blue-500/5 hover:bg-blue-50/50 dark:hover:bg-blue-950/5",
-              },
-              yellow: {
-                icon: "text-amber-600 bg-amber-50 dark:bg-amber-950/20",
-                value: "text-amber-700 dark:text-amber-400",
-                hover: "hover:border-amber-300 dark:hover:border-amber-900 hover:shadow-amber-500/5 hover:bg-amber-50/50 dark:hover:bg-amber-950/5",
+                icon: "text-blue-600 dark:text-blue-400 bg-blue-500/15",
+                value: "text-blue-600 dark:text-blue-400",
+                hover: "hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-blue-500/10 hover:bg-blue-500/5",
               },
             };
-            const scheme = colors[stat.color as keyof typeof colors] || colors.green;
+            const scheme = colors[stat.color as keyof typeof colors] || colors.amber;
 
             return (
               <motion.div
                 key={stat.title}
-                className={`p-4 rounded-xl border border-slate-100 dark:border-gray-700 transition-all duration-300 ${scheme.hover}`}
+                className={`p-4 rounded-2xl border border-slate-100 dark:border-slate-800 transition-all duration-300 ${scheme.hover}`}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
@@ -121,7 +121,7 @@ export const StatsPanel: React.FC = () => {
                     </div>
                     <div className="flex flex-col min-w-0">
                       <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{stat.title}</p>
-                      <p className={`text-2xl font-extrabold mt-0.5 truncate leading-none ${scheme.value}`}>
+                      <p className={`text-2xl font-black mt-0.5 truncate leading-none ${scheme.value}`}>
                         {stat.value}
                       </p>
                     </div>
@@ -134,8 +134,8 @@ export const StatsPanel: React.FC = () => {
         </motion.div>
       </AnimatePresence>
 
-      <div className="mt-6 text-center text-xs text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-gray-700 pt-4 shrink-0">
-        Data last updated today
+      <div className="mt-6 text-center text-xs text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-slate-800 pt-4 shrink-0 font-medium">
+        Data synced in real-time
       </div>
     </div>
   );

@@ -1,15 +1,17 @@
-import React, { useState,useRef, useEffect } from "react";
-import { User, LogOutIcon, Settings, Bell, Menu } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { User, LogOutIcon, Settings, Bell, Menu, Sun, Moon, Monitor } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../AuthComponents/AuthContext";
 import { useToast } from "../Shared/ToastContext";
 import { DashboardHeaderProps } from "@/hooks/types";
+import { useTheme } from "@/context/ThemeContext";
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onToggleSidebar,
 }) => {
   const { user, logout } = useAuth();
   const { addToast } = useToast();
+  const { theme, toggleTheme } = useTheme();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -49,26 +51,26 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   }, [isDropdownOpen]);
 
   // Get user initials
- const getInitials = (user: any) => {
+  const getInitials = (user: any) => {
     if (!user || !user.fullName) return 'NA';
     const names = user.fullName.split(" ");
     return names.map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
-};
+  };
 
   // Logout handler with toast-messanger
   const handleLogout = () => {
     setIsDropdownOpen(false);
     logout();
     addToast({
-    message: `You have successfully logged out, ${user?.fullName?.split(" ")[0] || "Traveler"}.`,
-    type: "info",
-  });
+      message: `You have successfully logged out, ${user?.fullName?.split(" ")[0] || "Traveler"}.`,
+      type: "info",
+    });
   };
 
-    // Motion Variants
+  // Motion Variants
   const brandVariants = {
     hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } }as any,
+    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } } as any,
   };
 
   const dashboardTextVariants = {
@@ -86,7 +88,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="sticky top-0 z-30 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100"
+      className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-xs border-b border-slate-200/80 dark:border-slate-800"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -97,7 +99,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               initial="hidden"
               animate="visible"
               onClick={onToggleSidebar}
-              className="lg:hidden p-2 rounded-xl bg-green-600 text-white shadow-md hover:bg-green-700 transition"
+              className="lg:hidden p-2 rounded-xl bg-linear-to-r from-amber-500 to-amber-400 text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 transition cursor-pointer"
             >
               <Menu className="w-5 h-5" />
             </motion.button>
@@ -110,9 +112,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               className="flex items-center space-x-3"
             >
               {/* SafarNama title */}
-               <motion.div variants={brandVariants}>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">SafarNama</h1>
-                <p className="text-[10px] sm:text-xs text-green-700 font-semibold tracking-wide">
+              <motion.div variants={brandVariants}>
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">SafarNama</h1>
+                <p className="text-[10px] sm:text-xs text-amber-500 font-extrabold tracking-wide">
                   More than Just Routes
                 </p>
               </motion.div>
@@ -123,13 +125,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   hidden: { scaleX: 0 },
                   visible: { scaleX: 1, transition: { duration: 0.4 } },
                 }}
-                className="h-8 w-[1.5px] bg-gray-300 mx-2 rounded-full origin-left"
+                className="h-8 w-[1.5px] bg-slate-200 dark:bg-slate-700 mx-2 rounded-full origin-left"
               />
 
               {/* Dashboard */}
               <motion.p
                 variants={dashboardTextVariants}
-                className="text-sm sm:text-base font-semibold text-gray-700 italic"
+                className="text-sm sm:text-base font-bold text-slate-600 dark:text-slate-300 italic"
               >
                 Dashboard
               </motion.p>
@@ -137,14 +139,27 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
 
           {/* Right section */}
-          <div className="flex items-center gap-4 relative  ">
+          <div className="flex items-center gap-3 sm:gap-4 relative">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              aria-label={`Toggle theme (currently ${theme})`}
+              className="p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 cursor-pointer"
+              title={`Theme: ${theme.toUpperCase()}`}
+            >
+              {theme === "light" && <Sun className="w-5 h-5 text-amber-500" />}
+              {theme === "dark" && <Moon className="w-5 h-5 text-amber-400" />}
+              {theme === "system" && <Monitor className="w-5 h-5 text-emerald-500" />}
+            </button>
+
+            {/* Notification Bell */}
             <motion.button
               variants={iconVariants}
               initial="hidden"
               animate="visible"
-              className="p-2 rounded-full hover:bg-gray-100 transition"
+              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 cursor-pointer"
             >
-              <Bell className="w-5 h-5 text-gray-700" />
+              <Bell className="w-5 h-5" />
             </motion.button>
 
             {/* User Avatar + Dropdown */}
@@ -152,7 +167,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               <button
                 ref={buttonRef}
                 onClick={toggleDropdown}
-                className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold shadow-md hover:shadow-lg transition"
+                className="w-10 h-10 rounded-full bg-linear-to-tr from-amber-500 to-amber-400 text-slate-950 flex items-center justify-center font-black shadow-md shadow-amber-500/25 border-2 border-amber-300 dark:border-amber-400 hover:scale-105 transition duration-200 cursor-pointer"
               >
                 {user ? getInitials(user) : <User className="w-5 h-5" />}
               </button>
@@ -165,17 +180,17 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-3 w-52 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50"
+                    className="absolute right-0 mt-3 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden z-50 backdrop-blur-md"
                   >
-                    <button className="flex items-center gap-2 px-4 py-3 w-full text-gray-700 hover:bg-green-50 transition">
-                      <User className="w-4 h-4" /> Profile
+                    <button className="flex items-center gap-2.5 px-4 py-3 w-full text-slate-700 dark:text-slate-200 font-medium text-sm hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition cursor-pointer">
+                      <User className="w-4 h-4 text-amber-500" /> Profile
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-3 w-full text-gray-700 hover:bg-green-50 transition">
-                      <Settings className="w-4 h-4" /> Settings
+                    <button className="flex items-center gap-2.5 px-4 py-3 w-full text-slate-700 dark:text-slate-200 font-medium text-sm hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition cursor-pointer">
+                      <Settings className="w-4 h-4 text-amber-500" /> Settings
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-3 w-full text-red-600 hover:bg-red-50 transition"
+                      className="flex items-center gap-2.5 px-4 py-3 w-full text-red-600 dark:text-red-400 font-medium text-sm hover:bg-red-50 dark:hover:bg-red-950/30 transition border-t border-slate-100 dark:border-slate-800 cursor-pointer"
                     >
                       <LogOutIcon className="w-4 h-4" /> Logout
                     </button>

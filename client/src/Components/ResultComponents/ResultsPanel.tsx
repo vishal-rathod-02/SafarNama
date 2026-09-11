@@ -28,18 +28,18 @@ const TabButton: React.FC<{
 }> = ({ label, count, isActive, onClick, Icon }) => (
   <button
     onClick={onClick}
-    className={`group flex items-center gap-2 px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-all duration-300 transform hover:scale-104 ${isActive
-      ? "bg-green-600 text-white shadow-lg"
-      : "bg-gray-100 text-gray-700 hover:bg-amber-300"
+    className={`group flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-bold rounded-xl transition-all duration-300 transform hover:scale-102 cursor-pointer ${isActive
+      ? "bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-400"
+      : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
       }`}
   >
     <Icon className="w-5 h-5" />
     {label}
     {count !== undefined && (
       <span
-        className={`ml-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${isActive
-          ? "bg-green-500"
-          : "bg-gray-300 text-gray-600 group-hover:bg-amber-100"
+        className={`ml-1.5 px-2 py-0.5 rounded-full text-xs font-black ${isActive
+          ? "bg-slate-950/20 text-slate-950"
+          : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 group-hover:bg-amber-100"
           }`}
       >
         {count}
@@ -85,7 +85,7 @@ const FilterDrawer: React.FC<{
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-100 flex justify-end bg-black/40 backdrop-blur-md"
+          className="fixed inset-0 z-100 flex justify-end bg-black/50 backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -94,7 +94,7 @@ const FilterDrawer: React.FC<{
         >
           <motion.div
             className="relative w-full max-w-sm h-full flex flex-col rounded-l-3xl shadow-2xl overflow-hidden
-              bg-linear-to-b from-white/95 to-white/80 backdrop-blur-2xl border-l border-white/30"
+              bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -102,31 +102,31 @@ const FilterDrawer: React.FC<{
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="relative px-6 py-5 bg-linear-to-r from-green-600 via-emerald-500 to-teal-400 text-white shadow-md">
-              <h3 className="text-2xl font-bold drop-shadow-sm">Filters</h3>
+            <div className="relative px-6 py-5 bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-md">
+              <h3 className="text-2xl font-black tracking-tight">Filters</h3>
               <button
                 onClick={onClose}
-                className="absolute top-5 right-6 text-white/80 hover:text-white transition"
+                className="absolute top-5 right-6 text-slate-950/80 hover:text-slate-950 transition cursor-pointer"
                 aria-label="Close Filter Drawer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
             {/* Filter Content */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-8 text-gray-800">
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-8 text-slate-800 dark:text-slate-100 custom-scrollbar">
               {/* Category Filter */}
               <section>
-                <h4 className="font-semibold mb-3 text-gray-700">Categories</h4>
+                <h4 className="font-bold mb-3 text-slate-700 dark:text-slate-200 text-sm uppercase tracking-wider">Categories</h4>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() =>
                       setFilters((f) => ({ ...f, category: "guide" }))
                     }
-                    className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-200 
+                    className={`px-4 py-2 text-sm rounded-xl font-bold transition-all duration-200 cursor-pointer 
                       ${filters.category === "guide"
-                        ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                        : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                        ? "bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/25 border border-amber-400"
+                        : "bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     AI Trip Guide ✨
@@ -136,10 +136,10 @@ const FilterDrawer: React.FC<{
                     onClick={() =>
                       setFilters((f) => ({ ...f, category: "all" }))
                     }
-                    className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-200 
+                    className={`px-4 py-2 text-sm rounded-xl font-bold transition-all duration-200 cursor-pointer 
                       ${filters.category === "all"
-                        ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                        : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                        ? "bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/25 border border-amber-400"
+                        : "bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     All ({tripData.places.length})
@@ -151,10 +151,10 @@ const FilterDrawer: React.FC<{
                       onClick={() =>
                         setFilters((f) => ({ ...f, category: cat.id }))
                       }
-                      className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-200
+                      className={`px-4 py-2 text-sm rounded-xl font-bold transition-all duration-200 cursor-pointer 
                         ${filters.category === cat.id
-                          ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                          : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                          ? "bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/25 border border-amber-400"
+                          : "bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                         }`}
                     >
                       {cat.label} ({cat.count})
@@ -165,16 +165,16 @@ const FilterDrawer: React.FC<{
 
               {/* Location Filter */}
               <section>
-                <h4 className="font-semibold mb-3 text-gray-700">Location</h4>
+                <h4 className="font-bold mb-3 text-slate-700 dark:text-slate-200 text-sm uppercase tracking-wider">Location</h4>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() =>
                       setFilters((f) => ({ ...f, location: "all" }))
                     }
-                    className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-200 
+                    className={`px-4 py-2 text-sm rounded-xl font-bold transition-all duration-200 cursor-pointer 
                       ${filters.location === "all"
-                        ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                        : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                        ? "bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/25 border border-amber-400"
+                        : "bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     All
@@ -183,10 +183,10 @@ const FilterDrawer: React.FC<{
                     onClick={() =>
                       setFilters((f) => ({ ...f, location: "source" }))
                     }
-                    className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-200 
+                    className={`px-4 py-2 text-sm rounded-xl font-bold transition-all duration-200 cursor-pointer 
                       ${filters.location === "source"
-                        ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                        : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                        ? "bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/25 border border-amber-400"
+                        : "bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     Near Source
@@ -195,10 +195,10 @@ const FilterDrawer: React.FC<{
                     onClick={() =>
                       setFilters((f) => ({ ...f, location: "destination" }))
                     }
-                    className={`px-4 py-2 text-sm rounded-lg font-semibold transition-all duration-200 
+                    className={`px-4 py-2 text-sm rounded-xl font-bold transition-all duration-200 cursor-pointer 
                       ${filters.location === "destination"
-                        ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                        : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                        ? "bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/25 border border-amber-400"
+                        : "bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                       }`}
                   >
                     Near Destination
@@ -208,7 +208,7 @@ const FilterDrawer: React.FC<{
 
               {/* Rating Filter */}
               <section>
-                <h4 className="font-semibold mb-3 text-gray-700">
+                <h4 className="font-bold mb-3 text-slate-700 dark:text-slate-200 text-sm uppercase tracking-wider">
                   Minimum Rating
                 </h4>
                 <div className="flex items-center gap-3">
@@ -224,9 +224,9 @@ const FilterDrawer: React.FC<{
                         minRating: parseFloat(e.target.value),
                       }))
                     }
-                    className="w-full h-2 accent-green-500 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 accent-amber-500 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="font-bold text-green-700 w-14 text-center">
+                  <span className="font-black text-amber-500 w-14 text-center">
                     {filters.minRating > 0
                       ? `${filters.minRating.toFixed(1)}+`
                       : "Any"}
@@ -236,7 +236,7 @@ const FilterDrawer: React.FC<{
 
               {/* Keywords */}
               <section>
-                <h4 className="font-semibold mb-3 text-gray-700">
+                <h4 className="font-bold mb-3 text-slate-700 dark:text-slate-200 text-sm uppercase tracking-wider">
                   Place Types
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -252,10 +252,10 @@ const FilterDrawer: React.FC<{
                     <button
                       key={kw}
                       onClick={() => handleKeywordChange(kw.toLowerCase())}
-                      className={`px-3 py-1.5 text-sm rounded-lg font-semibold transition-all duration-200
+                      className={`px-3.5 py-1.5 text-xs rounded-xl font-bold transition-all duration-200 cursor-pointer
                         ${filters.keywords.includes(kw.toLowerCase())
-                          ? "bg-linear-to-r from-green-600 to-emerald-500 text-white shadow-md"
-                          : "bg-white/60 hover:bg-green-50 border border-gray-200"
+                          ? "bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md border border-amber-400"
+                          : "bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                         }`}
                     >
                       {kw}
@@ -266,16 +266,16 @@ const FilterDrawer: React.FC<{
             </div>
 
             {/* Footer Buttons */}
-            <div className="sticky bottom-0 px-6 py-4 bg-white/70 backdrop-blur-md border-t border-gray-200 flex gap-3">
+            <div className="sticky bottom-0 px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex gap-3">
               <button
                 onClick={resetFilters}
-                className="flex-1 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition"
+                className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition cursor-pointer"
               >
                 Reset
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 py-3 bg-linear-to-r from-green-600 to-emerald-500 text-white font-semibold rounded-xl hover:opacity-90 transition"
+                className="flex-1 py-3 bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 font-extrabold rounded-xl shadow-md hover:shadow-lg transition cursor-pointer"
               >
                 Show Results
               </button>
@@ -507,39 +507,42 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
       {/* Title */}
       <motion.div variants={fadeInUp}>
         <div className="mb-8 mt-10 text-center">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            Your Curated Trip Plan
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            AI Optimized Route
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
+            Your Curated Road Trip Plan
           </h2>
-          <p className="text-gray-500">
-            Discover the best stops on your route from {tripData.source} to{" "}
-            {tripData.destination}.
+          <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+            Discover the best stops, food spots, and attractions from {tripData.source} to {tripData.destination}.
           </p>
           
           {/* Configuration Summary Badge Row */}
           {(travelDate || travelCompanions || vehicleMode || tripPreference) && (
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 mt-6">
               {travelDate && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 text-xs font-semibold rounded-full border border-green-100 shadow-xs">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Date: {new Date(travelDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs">
+                  <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{new Date(travelDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                 </div>
               )}
               {travelCompanions && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 shadow-xs">
-                  <Users className="w-3.5 h-3.5" />
-                  <span>Companions: {travelCompanions}</span>
+                <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs">
+                  <Users className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>{travelCompanions}</span>
                 </div>
               )}
               {vehicleMode && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-semibold rounded-full border border-purple-100 shadow-xs">
-                  <Car className="w-3.5 h-3.5" />
-                  <span>Vehicle: {vehicleMode === "Driving" ? "Car/SUV 🚗" : vehicleMode === "Motorcycle" ? "Motorcycle 🏍️" : "Transit 🚌"}</span>
+                <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs">
+                  <Car className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{vehicleMode === "Driving" ? "Car/SUV 🚗" : vehicleMode === "Motorcycle" ? "Motorcycle 🏍️" : "Transit 🚌"}</span>
                 </div>
               )}
               {tripPreference && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full border border-amber-100 shadow-xs animate-pulse">
-                  <Heart className="w-3.5 h-3.5" />
-                  <span>Preference: {tripPreference === "Food-Focused" ? "Food Trails 🍕" : tripPreference === "Nature" ? "Nature & Peace 🍃" : tripPreference === "Heritage" ? "Heritage & Culture 🏛️" : "Scenic Trails 🏞️"}</span>
+                <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/15 text-amber-800 dark:text-amber-200 text-xs font-black rounded-xl border border-amber-400/40 shadow-xs animate-pulse">
+                  <Heart className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{tripPreference === "Food-Focused" ? "Food Trails 🍕" : tripPreference === "Nature" ? "Nature & Peace 🍃" : tripPreference === "Heritage" ? "Heritage & Culture 🏛️" : "Scenic Trails 🏞️"}</span>
                 </div>
               )}
             </div>
@@ -559,11 +562,11 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
       {/* Tabs + Filters */}
       <motion.div
         variants={fadeInUp}
-        className="flex justify-between items-center sticky top-24 z-20 bg-gray-50/80 backdrop-blur-md py-4 rounded-xl"
+        className="flex justify-between items-center sticky top-20 z-20 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-xl py-3 px-2 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-xs"
       >
         {isDesktop ? (
           // Desktop view
-          <div className="flex items-center gap-2 px-4 w-full">
+          <div className="flex items-center gap-2 px-2 w-full">
             <TabButton
               label="AI Trip Guide"
               isActive={filters.category === "guide"}
@@ -600,9 +603,9 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
             <div className="ml-auto">
               <button
                 onClick={() => setIsFilterOpen(true)}
-                className="flex items-center gap-2 bg-white border-2 border-gray-300 text-gray-600 font-bold py-2 px-4 rounded-lg hover:border-green-500 hover:text-green-600 transition transform hover:scale-105"
+                className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold py-2 px-4 rounded-xl hover:border-amber-400 hover:text-amber-500 transition transform hover:scale-102 cursor-pointer shadow-xs"
               >
-                <SlidersHorizontal className="w-5 h-5" />
+                <SlidersHorizontal className="w-4 h-4 text-amber-500" />
                 <span>Filters</span>
               </button>
             </div>
@@ -610,15 +613,15 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
         ) : (
           // Mobile / tablet view
           <>
-            <p className="text-lg font-semibold text-gray-700 px-4">
+            <p className="text-base font-bold text-slate-800 dark:text-slate-200 px-3">
               {filters.category === "guide" ? "Curated Itinerary" : `${displayedPlaces.length} places found`}
             </p>
-            <div className="px-4">
+            <div className="px-2">
               <button
                 onClick={() => setIsFilterOpen(true)}
-                className="flex items-center gap-2 bg-white border-2 border-green-500 text-green-600 font-bold py-2 px-5 rounded-lg hover:bg-green-50 transition transform hover:scale-105"
+                className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-amber-400 text-amber-600 dark:text-amber-400 font-bold py-2 px-4 rounded-xl hover:bg-amber-50 transition transform hover:scale-102 cursor-pointer"
               >
-                <SlidersHorizontal className="w-5 h-5" />
+                <SlidersHorizontal className="w-4 h-4" />
                 <span>Filters</span>
               </button>
             </div>
@@ -633,33 +636,33 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -15 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-8 text-left"
         >
           {/* Left Column: Summary & Highlights */}
           <div className="lg:col-span-1 space-y-6">
             {/* Overview / Summary Card */}
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 space-y-4">
-              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
-                <Compass className="w-5 h-5 text-green-600" />
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200/80 dark:border-slate-700 p-6 space-y-4">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
+                <Compass className="w-5 h-5 text-emerald-500" />
                 Trip Overview
               </h3>
-              <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-line">
                 {tripData.summary}
               </p>
             </div>
 
             {/* Highlights Card */}
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 space-y-4">
-              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200/80 dark:border-slate-700 p-6 space-y-4">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
                 <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
                 Curated Highlights
               </h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                 {tripData.highlights}
               </p>
-              <div className="mt-4 p-4 bg-green-50 rounded-xl border border-green-100 flex items-start gap-3">
+              <div className="mt-4 p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex items-start gap-3">
                 <span className="text-xl">✨</span>
-                <p className="text-xs text-green-700 leading-normal font-medium">
+                <p className="text-xs text-emerald-700 dark:text-emerald-300 leading-normal font-semibold">
                   SafarNama curates exceptional stops along your route to maximize your travel experience.
                 </p>
               </div>
@@ -667,69 +670,69 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
 
             {/* Smart Tips & Recommendations Card */}
             {(vehicleMode || tripPreference || travelCompanions) && (
-              <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 space-y-4">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
-                  <Sparkles className="w-5 h-5 text-green-600" />
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200/80 dark:border-slate-700 p-6 space-y-4">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
                   SafarNama Smart Tips
                 </h3>
                 <div className="space-y-3.5">
                   {/* Vehicle specific tip */}
                   {vehicleMode === "Motorcycle" && (
-                    <div className="p-3 bg-purple-50 rounded-xl border border-purple-100 text-xs text-purple-900 leading-relaxed">
+                    <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
                       <span className="font-bold">🏍️ Riding Advisory:</span> A motorcycle trip requires regular rest stops. We suggest stopping every 80-100 km. Ensure your helmet is secure, and watch for gravel or sudden highway dividers.
                     </div>
                   )}
                   {vehicleMode === "Transit" && (
-                    <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100 text-xs text-indigo-900 leading-relaxed">
+                    <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-800/40 text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed">
                       <span className="font-bold">🚌 Transit Advisory:</span> When using public transit, confirm bus/train timetables in advance. We suggest arriving at stops 15-20 minutes before departure to avoid delays.
                     </div>
                   )}
                   {vehicleMode === "Driving" && (
-                    <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 text-xs text-blue-900 leading-relaxed">
+                    <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-800/40 text-xs text-blue-900 dark:text-blue-200 leading-relaxed">
                       <span className="font-bold">🚗 Road Trip Alert:</span> Driving conditions on highway segments can change. Check tire pressures and keep emergency contact numbers saved. Enjoy the cruise!
                     </div>
                   )}
 
                   {/* Preference specific tip */}
                   {tripPreference === "Food-Focused" && (
-                    <div className="p-3 bg-red-50 rounded-xl border border-red-100 text-xs text-red-900 leading-relaxed">
+                    <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
                       <span className="font-bold">🍕 Food Trail Spotlight:</span> Food & Cuisine mode is active! We've prioritized local dhabas, highway restaurants, and iconic sweet stalls on this route. Be sure to try the local specialties!
                     </div>
                   )}
                   {tripPreference === "Nature" && (
-                    <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-xs text-emerald-900 leading-relaxed">
+                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-800/40 text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed">
                       <span className="font-bold">🍃 Nature Escape:</span> Nature-focused road trip active. We recommend starting early to catch the morning mist. Keep an eye out for scenic forest and lake stopovers!
                     </div>
                   )}
                   {tripPreference === "Heritage" && (
-                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-100 text-xs text-amber-900 leading-relaxed">
+                    <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-100 dark:border-amber-800/40 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
                       <span className="font-bold">🏛️ Cultural Landmark:</span> Exploring historic India. Take time to read local plaques or hire a certified guide at heritage sites for immersive details.
                     </div>
                   )}
                   {tripPreference === "Scenic" && (
-                    <div className="p-3 bg-teal-50 rounded-xl border border-teal-100 text-xs text-teal-900 leading-relaxed">
+                    <div className="p-3 bg-teal-50 dark:bg-teal-950/40 rounded-xl border border-teal-100 dark:border-teal-800/40 text-xs text-teal-900 dark:text-teal-200 leading-relaxed">
                       <span className="font-bold">🏞️ Scenic Trail Route:</span> Don't rush! This route is chosen for beautiful countryside views, highway curves, and roadside photopoints. Keep your camera handy!
                     </div>
                   )}
 
                   {/* Companion specific tip */}
                   {travelCompanions === "Family" && (
-                    <div className="p-3 bg-orange-50 rounded-xl border border-orange-100 text-xs text-orange-900 leading-relaxed">
+                    <div className="p-3 bg-orange-50 dark:bg-orange-950/40 rounded-xl border border-orange-100 dark:border-orange-800/40 text-xs text-orange-900 dark:text-orange-200 leading-relaxed">
                       <span className="font-bold">👨‍👩‍👧‍👦 Family Travel Tip:</span> Traveling with family? We have highlighted stops with clean restrooms, family dining spaces, and play zones for kids.
                     </div>
                   )}
                   {travelCompanions === "Friends" && (
-                    <div className="p-3 bg-pink-50 rounded-xl border border-pink-100 text-xs text-pink-900 leading-relaxed">
+                    <div className="p-3 bg-pink-50 dark:bg-pink-950/40 rounded-xl border border-pink-100 dark:border-pink-800/40 text-xs text-pink-900 dark:text-pink-200 leading-relaxed">
                       <span className="font-bold">👥 Group Adventures:</span> Traveling with friends? Share the driving duties, carry multiplayer board games, and create a shared playlist for the drive!
                     </div>
                   )}
                   {travelCompanions === "Couple" && (
-                    <div className="p-3 bg-rose-50 rounded-xl border border-rose-100 text-xs text-rose-900 leading-relaxed">
+                    <div className="p-3 bg-rose-50 dark:bg-rose-950/40 rounded-xl border border-rose-100 dark:border-rose-800/40 text-xs text-rose-900 dark:text-rose-200 leading-relaxed">
                       <span className="font-bold">💑 Romantic Getaway:</span> Enjoy the scenic drive! Don't miss romantic roadside cafe options and cozy view points.
                     </div>
                   )}
                   {travelCompanions === "Solo" && (
-                    <div className="p-3 bg-sky-50 rounded-xl border border-sky-100 text-xs text-sky-900 leading-relaxed">
+                    <div className="p-3 bg-sky-50 dark:bg-sky-950/40 rounded-xl border border-sky-100 dark:border-sky-800/40 text-xs text-sky-900 dark:text-sky-200 leading-relaxed">
                       <span className="font-bold">🙋‍♂️ Solo Voyager:</span> Safe travels! Share your live location with a trusted friend or family member, and ensure your phone power bank is fully charged.
                     </div>
                   )}
@@ -739,25 +742,25 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
           </div>
 
           {/* Right Column: Itinerary Timeline */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2 border-b pb-3 mb-6">
-              <Sparkles className="w-5 h-5 text-green-600" />
+          <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200/80 dark:border-slate-700 p-6">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3 mb-6">
+              <Sparkles className="w-5 h-5 text-amber-500" />
               Day-by-Day Itinerary
             </h3>
 
             {/* Timeline */}
-            <div className="relative pl-6 border-l-2 border-green-200 space-y-8 py-2">
+            <div className="relative pl-6 border-l-2 border-amber-400/50 space-y-8 py-2">
               {parsedItinerary.map((day) => (
                 <div key={day.index} className="relative group">
                   {/* Timeline bullet */}
-                  <div className="absolute -left-[33px] top-1.5 w-4 h-4 bg-green-500 rounded-full border-4 border-white group-hover:scale-125 transition-transform duration-200 shadow-sm" />
+                  <div className="absolute -left-[31px] top-1.5 w-4 h-4 bg-amber-500 rounded-full ring-4 ring-white dark:ring-slate-800 group-hover:scale-125 transition-transform duration-200 shadow-sm" />
                   
                   {/* Content card */}
-                  <div className="bg-slate-50/60 hover:bg-green-50/40 rounded-xl p-5 border border-slate-100 hover:border-green-100 transition-all duration-200">
-                    <h4 className="font-extrabold text-green-700 text-lg mb-2 flex items-center gap-2">
+                  <div className="bg-slate-50 dark:bg-slate-900/60 hover:bg-amber-50/40 dark:hover:bg-slate-700/40 rounded-xl p-5 border border-slate-200/60 dark:border-slate-700/60 transition-all duration-200">
+                    <h4 className="font-extrabold text-amber-600 dark:text-amber-400 text-lg mb-2 flex items-center gap-2">
                       {day.title}
                     </h4>
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                       {day.content}
                     </p>
                   </div>
@@ -795,11 +798,11 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16 bg-white rounded-2xl shadow-md border border-gray-100 max-w-md mx-auto"
+            className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 max-w-md mx-auto"
           >
-            <Compass className="w-12 h-12 text-gray-300 mx-auto mb-4 animate-pulse" />
-            <h3 className="text-lg font-bold text-gray-800">No stops found</h3>
-            <p className="text-gray-500 text-sm mt-1 px-6">
+            <Compass className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4 animate-pulse" />
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">No stops found</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 px-6">
               There are no items matching the active filters in this area. Try adjusting your filter parameters or select "All Locations".
             </p>
           </motion.div>

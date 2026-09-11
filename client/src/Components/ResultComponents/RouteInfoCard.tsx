@@ -33,24 +33,24 @@ export const DesktopRouteInfo = ({
       absolute bottom-5 left-5
       z-1000
       px-5 py-4 rounded-2xl
-      bg-white/85 dark:bg-gray-800/85 backdrop-blur-xl
-      border border-slate-100 dark:border-gray-700
+      bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl
+      border border-slate-200/80 dark:border-slate-700
       shadow-[0_12px_32px_rgba(0,0,0,.15)]
       items-center gap-6
     "
   >
     <div className="flex items-center gap-2">
-      <Navigation className="w-5 h-5 text-green-600" />
-      <span className="font-bold text-slate-800 dark:text-slate-200">
+      <Navigation className="w-5 h-5 text-amber-500" />
+      <span className="font-extrabold text-slate-900 dark:text-slate-100">
         {formatDistance(distance)}
       </span>
     </div>
 
-    <div className="w-px h-6 bg-gray-300/60 dark:bg-gray-700" />
+    <div className="w-px h-6 bg-slate-300 dark:bg-slate-700" />
 
     <div className="flex items-center gap-2">
-      <Clock className="w-5 h-5 text-blue-600" />
-      <span className="font-bold text-slate-800 dark:text-slate-200">
+      <Clock className="w-5 h-5 text-emerald-500" />
+      <span className="font-extrabold text-slate-900 dark:text-slate-100">
         {formatDuration(duration)}
       </span>
     </div>
@@ -73,8 +73,8 @@ export const DesktopMiniLegend = ({
       absolute bottom-5 right-5
       z-1000
       px-4 py-3 rounded-2xl
-      bg-white/85 dark:bg-gray-800/85 backdrop-blur-xl
-      border border-slate-100 dark:border-gray-700
+      bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl
+      border border-slate-200/80 dark:border-slate-700
       shadow-[0_12px_32px_rgba(0,0,0,.15)]
       items-center gap-4
     "
@@ -96,8 +96,8 @@ export const DesktopMiniLegend = ({
             src={item.icon}
             alt={item.label}
             className={`w-9 h-9 rounded-full border-2 object-cover transition-all duration-200 shadow-md ${isActive
-              ? "border-green-500 scale-110 ring-4 ring-green-100"
-              : "border-white hover:border-green-300"
+              ? "border-amber-500 scale-110 ring-4 ring-amber-400/30"
+              : "border-white hover:border-amber-300"
               }`}
           />
 
@@ -106,8 +106,8 @@ export const DesktopMiniLegend = ({
               absolute -top-10 left-1/2 -translate-x-1/2
               opacity-0 group-hover:opacity-100
               transition-all duration-300
-              bg-slate-900/90 backdrop-blur-xs
-              text-white font-semibold
+              bg-slate-900/95 backdrop-blur-xs
+              text-amber-300 font-bold
               text-[10px] px-2 py-1 rounded-md
               shadow-md whitespace-nowrap
             "

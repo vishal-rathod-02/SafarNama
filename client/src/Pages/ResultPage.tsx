@@ -207,7 +207,7 @@ export const ResultsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-gray-900/50 pb-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
       <Header />
       <PageStatus isLoading={isLoading} error={error} onRetry={() => navigate("/")} />
 
@@ -215,12 +215,15 @@ export const ResultsPage: React.FC = () => {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 space-y-8">
           
           {/* Header Controls Bar */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-6 rounded-3xl border border-slate-100 dark:border-gray-700 shadow-sm gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm gap-4">
             <div>
-              <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-1.5">
+                Ready for Adventure
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                 Your Travel Guide
               </h1>
-              <p className="text-xs text-slate-400 font-semibold mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
                 Explore custom timeline directions, stopovers, and weather highlights.
               </p>
             </div>
@@ -230,7 +233,7 @@ export const ResultsPage: React.FC = () => {
                 onClick={() => navigate("/#home")}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="py-2.5 px-5 rounded-xl font-bold text-xs text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 transition cursor-pointer text-center"
+                className="py-3 px-5 rounded-xl font-bold text-xs text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer text-center border border-slate-200/60 dark:border-slate-700"
               >
                 Plan Another Trip
               </motion.button>
@@ -240,10 +243,10 @@ export const ResultsPage: React.FC = () => {
                 disabled={isSaving || !!error}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`py-2.5 px-5 rounded-xl font-bold text-xs text-white transition cursor-pointer text-center ${
+                className={`py-3 px-6 rounded-xl font-black text-xs transition cursor-pointer text-center shadow-lg ${
                   isSaving
-                    ? "bg-slate-400 cursor-not-allowed"
-                    : "bg-green-500 hover:bg-green-600 shadow-md shadow-green-500/10"
+                    ? "bg-slate-400 text-slate-200 cursor-not-allowed"
+                    : "bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-amber-500/25 tracking-wide"
                 }`}
               >
                 {isSaving ? "Saving Plan..." : "Save Trip"}
@@ -252,7 +255,7 @@ export const ResultsPage: React.FC = () => {
           </div>
 
           {/* Map Section (Top Placement) */}
-          <div className="h-[60vh] md:h-[65vh] w-full rounded-3xl overflow-hidden shadow-xl border border-slate-100/50 dark:border-gray-800 bg-white dark:bg-gray-800 p-2">
+          <div className="h-[60vh] md:h-[65vh] w-full rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-2">
             {sourceCoords && destinationCoords && routePolyline ? (
               <MapView
                 source={{ name: tripData.source, coords: sourceCoords }}
@@ -264,7 +267,7 @@ export const ResultsPage: React.FC = () => {
                 route={routePolyline}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-slate-50/50 dark:bg-gray-800/50 rounded-2xl">
+              <div className="w-full h-full flex items-center justify-center bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl">
                 <SkeletonLoader />
               </div>
             )}

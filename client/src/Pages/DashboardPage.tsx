@@ -48,7 +48,7 @@ export const Dashboard: React.FC = () => {
   const handleGoHome = () => navigate("/#home");
 
   return (
-    <div className="flex flex-col min-h-full pb-10">
+    <div className="flex flex-col min-h-full pb-10 bg-slate-50 dark:bg-slate-950">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -58,19 +58,20 @@ export const Dashboard: React.FC = () => {
           {/* Welcome Card */}
           <motion.div
             variants={itemVariants}
-            className="relative overflow-hidden bg-linear-to-br from-green-600 to-emerald-700 dark:from-green-700 dark:to-emerald-850 rounded-3xl shadow-xl p-8 flex flex-col justify-between hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300"
+            className="relative overflow-hidden bg-linear-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl shadow-2xl p-8 sm:p-10 flex flex-col justify-between hover:shadow-amber-500/5 transition-all duration-300 bg-premium-grid bg-premium-mesh"
           >
-            {/* Background mesh bubbles */}
-            <div className="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-white/10 blur-xl pointer-events-none" />
-            <div className="absolute right-1/4 -top-12 w-36 h-36 rounded-full bg-white/5 blur-lg pointer-events-none" />
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.15),transparent_60%)] pointer-events-none" />
 
-            <LayoutDashboard className="absolute top-6 right-6 w-16 h-16 text-white/10 hidden sm:block shrink-0" />
+            <LayoutDashboard className="absolute top-6 right-6 w-20 h-20 text-amber-500/10 hidden sm:block shrink-0 pointer-events-none" />
 
             <div className="mb-6 relative z-10">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                Hello, {userName}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold mb-3">
+                Command Center
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                Hello, {userName} 👋
               </h2>
-              <p className="text-sm sm:text-base text-white/80 mt-2 font-medium max-w-xl leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-300 mt-2 font-medium max-w-xl leading-relaxed">
                 Your next adventure awaits. Review your travel stats, manage saved timelines, or plan a brand-new route instantly.
               </p>
             </div>
@@ -82,7 +83,7 @@ export const Dashboard: React.FC = () => {
                 onClick={handleBackToResults}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white text-green-700 hover:bg-slate-50 font-bold text-xs shadow-md transition-all cursor-pointer"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/25 transition cursor-pointer tracking-wide"
               >
                 <ArrowLeftIcon className="w-4 h-4" />
                 Back to Results
@@ -93,7 +94,7 @@ export const Dashboard: React.FC = () => {
                 onClick={handleGoHome}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-green-500/30 hover:bg-green-500/40 text-white font-bold text-xs border border-white/20 transition-all cursor-pointer"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs border border-white/15 transition cursor-pointer"
               >
                 <HomeIcon className="w-4 h-4" />
                 Home
@@ -113,7 +114,7 @@ export const Dashboard: React.FC = () => {
 
           {/* Quick Actions */}
           <motion.section variants={itemVariants}>
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-4">Quick Actions</h3>
             <ActionCards />
           </motion.section>
         </div>

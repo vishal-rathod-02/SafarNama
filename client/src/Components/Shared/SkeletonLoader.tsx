@@ -10,7 +10,7 @@ export const SkeletonLoader: React.FC = () => {
       transition: {
         staggerChildren: 0.06,
       },
-    }as any,
+    } as any,
   };
 
   const itemVariants = {
@@ -19,7 +19,7 @@ export const SkeletonLoader: React.FC = () => {
       opacity: 1,
       y: 0,
       transition: { duration: 0.25, ease: "easeOut" },
-    }as any,
+    } as any,
   };
 
   return (
@@ -37,7 +37,7 @@ export const SkeletonLoader: React.FC = () => {
         {/* 🗺 Map section skeleton */}
         <motion.div
           variants={itemVariants}
-          className="relative w-full h-[55vh] rounded-2xl bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 border border-emerald-50 shadow-sm overflow-hidden"
+          className="relative w-full h-[55vh] rounded-2xl bg-linear-to-br from-gray-200 via-gray-100 to-gray-200 border border-emerald-50 shadow-sm overflow-hidden"
         >
           {/* fake map controls / legend */}
           <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -91,3 +91,23 @@ export const SkeletonLoader: React.FC = () => {
     </motion.div>
   );
 };
+
+export const AttractionsSkeleton: React.FC = () => (
+  <div className="space-y-3" role="status" aria-label="Loading attractions">
+    {[...Array(3)].map((_, i) => (
+      <div
+        key={i}
+        className="flex items-center justify-between p-3.5 rounded-xl border border-gray-100 dark:border-gray-700/50 bg-slate-50/50 dark:bg-slate-800/40 animate-pulse gap-4"
+      >
+        <div className="flex items-center gap-3 w-full">
+          <div className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 shrink-0" />
+          <div className="space-y-2 w-3/4">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+          </div>
+        </div>
+        <div className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg shrink-0" />
+      </div>
+    ))}
+  </div>
+);

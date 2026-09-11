@@ -18,21 +18,21 @@ export const ActionCards: React.FC = () => {
           <Link
             key={card.title}
             to={card.path}
-            className={`bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-start gap-3 text-left transition-all duration-300 border-b-4 border-transparent hover:scale-[1.02] hover:shadow-2xl hover:border-green-500 
+            className={`group bg-white dark:bg-slate-900 shadow-md hover:shadow-2xl hover:shadow-amber-500/10 rounded-2xl p-6 flex flex-col justify-start gap-3 text-left transition-all duration-300 border border-slate-200/80 dark:border-slate-800 hover:border-amber-500 dark:hover:border-amber-500 hover:-translate-y-1
               ${index === 0 ? 'md:col-span-1' : ''} 
             `}
           >
-            <div className="p-3 bg-green-50 rounded-lg self-start mb-2">
-                {Icon && <Icon className="w-7 h-7 text-green-600" />}
+            <div className="p-3 bg-amber-500/15 text-amber-600 dark:text-amber-400 rounded-xl self-start mb-1 group-hover:bg-amber-500 group-hover:text-slate-950 transition duration-300">
+                {Icon && <Icon className="w-6 h-6" />}
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 tracking-tight">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               {card.title}
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
               {card.description}
             </p>
-              <span className="mt-2 text-sm font-semibold text-green-600 hover:text-green-700 transition">
+            <span className="mt-2 text-sm font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 group-hover:gap-2 transition-all">
               Go Now &rarr;
             </span>
           </Link>
