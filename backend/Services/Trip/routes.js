@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import axios from "axios";
 import authMiddleware from "../../Middleware/Auth.js";
+import { createRateLimiter } from "../../Middleware/rateLimiter.js";
 import { buildTripData } from "./AiEngine/FetchingEngine.js";
 import Trip from "./model.js";
 import { SERVICE_URLS } from "../../Config/serviceURLs.js";
@@ -12,52 +13,59 @@ const LOCATION_URL = SERVICE_URLS.LOCATION;
 const PLACES_URL = SERVICE_URLS.PLACES;
 const FOOD_URL = SERVICE_URLS.FOOD;
 
-router.post("/generate", authMiddleware, async (req, res) => {
+// Rate limiter: Max 8 AI trip generation requests per minute per user/IP
+const generateRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 8,
+  message: "Trip generation rate limit reached. Please wait a minute before requesting another route."
+});
+
+router.post("/generate", authMiddleware, generateRateLimiter, async (req, res) => {
   try {
     const { source, destination, startCoords: clientStartCoords, endCoords: clientEndCoords } = req.body;
     const userId = req.user.id;
 
-    if (!source || !destination) {
-      return res.status(400).json({ success: false, message: "Source and destination are required." });
+    if (!source || !destination || typeof source !== "string" || typeof destination !== "string") {
+      return res.status(400).json({ success: false, message: "Valid source and destination strings are required." });
     }
 
-    console.log(`🚗 Generating trip for: ${source} → ${destination}`);
+    console.log(`🚗 Generating trip for: ${source.trim()} → ${destination.trim()}`);
 
-    let startCoords = Array.isArray(clientStartCoords) ? clientStartCoords : null;
-    let endCoords = Array.isArray(clientEndCoords) ? clientEndCoords : null;
+    let startCoords = Array.isArray(clientStartCoords) && clientStartCoords.length === 2 ? clientStartCoords : null;
+    let endCoords = Array.isArray(clientEndCoords) && clientEndCoords.length === 2 ? clientEndCoords : null;
 
     if (!startCoords || !endCoords) {
       try {
         const [srcRes, destRes] = await Promise.all([
-          axios.get(`${LOCATION_URL}/api/geocode?locationName=${encodeURIComponent(source)}`, { validateStatus: null }),
-          axios.get(`${LOCATION_URL}/api/geocode?locationName=${encodeURIComponent(destination)}`, { validateStatus: null }),
+          axios.get(`${LOCATION_URL}/api/geocode?locationName=${encodeURIComponent(source)}`, { validateStatus: null, timeout: 8000 }),
+          axios.get(`${LOCATION_URL}/api/geocode?locationName=${encodeURIComponent(destination)}`, { validateStatus: null, timeout: 8000 }),
         ]);
 
         if (srcRes.status !== 200 || destRes.status !== 200) {
-          console.error("❌ Location service bad response:", srcRes.status, destRes.status, srcRes.data, destRes.data);
-          return res.status(502).json({ success: false, message: "Location service error", details: { src: srcRes.data, dest: destRes.data } });
+          console.error("❌ Location service bad response:", srcRes.status, destRes.status);
+          return res.status(502).json({ success: false, message: "Location lookup service is currently unavailable." });
         }
 
         startCoords = startCoords || srcRes.data;
         endCoords = endCoords || destRes.data;
       } catch (err) {
         console.error("❌ Location service error:", err?.message || err);
-        return res.status(502).json({ success: false, message: "Location service error", details: err?.message || err });
+        return res.status(502).json({ success: false, message: "Failed to resolve route coordinates." });
       }
     }
 
     if (!Array.isArray(startCoords) || !Array.isArray(endCoords)) {
-      return res.status(400).json({ success: false, message: "Unable to fetch valid coordinates." });
+      return res.status(400).json({ success: false, message: "Unable to fetch valid coordinates for the specified route." });
     }
 
     let placesList = [];
     try {
       const [sourcePlacesRes, destPlacesRes] = await Promise.all([
-        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(source)}&lat=${startCoords[0]}&lon=${startCoords[1]}`, { validateStatus: null }).catch(err => {
+        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(source)}&lat=${startCoords[0]}&lon=${startCoords[1]}`, { validateStatus: null, timeout: 8000 }).catch(err => {
           console.error("❌ Source Places service request failed:", err.message);
           return null;
         }),
-        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(destination)}&lat=${endCoords[0]}&lon=${endCoords[1]}`, { validateStatus: null }).catch(err => {
+        axios.get(`${PLACES_URL}/api/places/search?query=${encodeURIComponent(destination)}&lat=${endCoords[0]}&lon=${endCoords[1]}`, { validateStatus: null, timeout: 8000 }).catch(err => {
           console.error("❌ Destination Places service request failed:", err.message);
           return null;
         })
@@ -69,26 +77,25 @@ router.post("/generate", authMiddleware, async (req, res) => {
       placesList = [...sourcePlaces, ...destPlaces];
     } catch (err) {
       console.error("❌ Places service error:", err?.message || err);
-      return res.status(502).json({ success: false, message: "Places service error", details: err?.message || err });
     }
 
     let foodItems = [];
     let hotelItems = [];
     try {
       const [sourceFoodRes, sourceHotelsRes, destFoodRes, destHotelsRes] = await Promise.all([
-        axios.get(`${FOOD_URL}/api/food/restaurants?lat=${encodeURIComponent(startCoords[0])}&lon=${encodeURIComponent(startCoords[1])}`, { validateStatus: null }).catch(err => {
+        axios.get(`${FOOD_URL}/api/food/restaurants?lat=${encodeURIComponent(startCoords[0])}&lon=${encodeURIComponent(startCoords[1])}`, { validateStatus: null, timeout: 6000 }).catch(err => {
           console.error("❌ Source Food service request failed:", err.message);
           return null;
         }),
-        axios.get(`${FOOD_URL}/api/food/hotels?lat=${encodeURIComponent(startCoords[0])}&lon=${encodeURIComponent(startCoords[1])}`, { validateStatus: null }).catch(err => {
+        axios.get(`${FOOD_URL}/api/food/hotels?lat=${encodeURIComponent(startCoords[0])}&lon=${encodeURIComponent(startCoords[1])}`, { validateStatus: null, timeout: 6000 }).catch(err => {
           console.error("❌ Source Hotels service request failed:", err.message);
           return null;
         }),
-        axios.get(`${FOOD_URL}/api/food/restaurants?lat=${encodeURIComponent(endCoords[0])}&lon=${encodeURIComponent(endCoords[1])}`, { validateStatus: null }).catch(err => {
+        axios.get(`${FOOD_URL}/api/food/restaurants?lat=${encodeURIComponent(endCoords[0])}&lon=${encodeURIComponent(endCoords[1])}`, { validateStatus: null, timeout: 6000 }).catch(err => {
           console.error("❌ Dest Food service request failed:", err.message);
           return null;
         }),
-        axios.get(`${FOOD_URL}/api/food/hotels?lat=${encodeURIComponent(endCoords[0])}&lon=${encodeURIComponent(endCoords[1])}`, { validateStatus: null }).catch(err => {
+        axios.get(`${FOOD_URL}/api/food/hotels?lat=${encodeURIComponent(endCoords[0])}&lon=${encodeURIComponent(endCoords[1])}`, { validateStatus: null, timeout: 6000 }).catch(err => {
           console.error("❌ Dest Hotels service request failed:", err.message);
           return null;
         })
@@ -112,7 +119,7 @@ router.post("/generate", authMiddleware, async (req, res) => {
       tripData = await buildTripData(source, destination, startCoords, endCoords, placesData);
     } catch (err) {
       console.error("❌ buildTripData error:", err?.message || err);
-      return res.status(500).json({ success: false, message: "AI trip generation failed", details: err?.message || err });
+      return res.status(500).json({ success: false, message: "AI trip generation encountered an error. Please try again." });
     }
 
     if (!tripData) {
@@ -135,19 +142,17 @@ router.post("/generate", authMiddleware, async (req, res) => {
       await newTrip.save();
     } catch (err) {
       console.error("❌ Save trip error:", err?.message || err);
-
-      return res.status(500).json({ success: false, message: "Failed to save trip", details: err?.message || err });
     }
 
     res.status(200).json({ success: true, message: "Trip generated successfully!", tripData });
   } catch (err) {
     console.error("💥 Trip Generation Error:", err?.message || err);
-    res.status(500).json({ success: false, message: "Internal server error while generating trip.", error: err?.message || err });
+    res.status(500).json({ success: false, message: "Internal server error while generating trip." });
   }
 });
 
 /**
- * 💾 Save Trip Manually (if you ever send custom trip from frontend)
+ * 💾 Save Trip Manually
  */
 router.post("/save", authMiddleware, async (req, res) => {
   try {
@@ -163,7 +168,7 @@ router.post("/save", authMiddleware, async (req, res) => {
       duration,
     } = req.body;
 
-    if (!source || !destination || !distance || !summary) {
+    if (!source || !destination || !summary) {
       return res.status(400).json({
         success: false,
         error: "Missing required fields.",
@@ -191,33 +196,44 @@ router.post("/save", authMiddleware, async (req, res) => {
 });
 
 /**
- * 📜 Fetch User's Saved Trips
+ * 📜 Fetch User's Saved Trips (With ReDoS Sanitization)
  */
 router.get("/mytrips", authMiddleware, async (req, res) => {
   try {
     const { page = 1, limit = 6, search = "" } = req.query;
 
+    // Sanitize search string against ReDoS
+    const safeSearch = typeof search === "string" ? search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") : "";
+    const searchRegex = new RegExp(safeSearch, "i");
+
     const query = {
       user: req.user.id,
-      $or: [
-        { source: new RegExp(search, "i") },
-        { destination: new RegExp(search, "i") },
-        { summary: new RegExp(search, "i") },
-      ],
+      ...(safeSearch
+        ? {
+            $or: [
+              { source: searchRegex },
+              { destination: searchRegex },
+              { summary: searchRegex },
+            ],
+          }
+        : {}),
     };
+
+    const parsedLimit = Math.min(Math.max(Number(limit) || 6, 1), 50);
+    const parsedPage = Math.max(Number(page) || 1, 1);
 
     const trips = await Trip.find(query)
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
+      .skip((parsedPage - 1) * parsedLimit)
+      .limit(parsedLimit);
 
     const total = await Trip.countDocuments(query);
 
     res.json({
       success: true,
       totalTrips: total,
-      currentPage: Number(page),
-      totalPages: Math.ceil(total / limit),
+      currentPage: parsedPage,
+      totalPages: Math.ceil(total / parsedLimit),
       trips,
     });
   } catch (err) {
@@ -227,10 +243,14 @@ router.get("/mytrips", authMiddleware, async (req, res) => {
 });
 
 /**
- * ⭐ Toggle Favorite Trip
+ * ⭐ Toggle Favorite Trip (With ObjectId Validation)
  */
 router.patch("/favorite/:id", authMiddleware, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, error: "Invalid trip ID format." });
+    }
+
     const trip = await Trip.findOne({ _id: req.params.id, user: req.user.id });
     if (!trip)
       return res
@@ -248,10 +268,14 @@ router.patch("/favorite/:id", authMiddleware, async (req, res) => {
 });
 
 /**
- * 🗑️ Delete Trip
+ * 🗑️ Delete Trip (With ObjectId Validation)
  */
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, error: "Invalid trip ID format." });
+    }
+
     const deleted = await Trip.findOneAndDelete({
       _id: req.params.id,
       user: req.user.id,
