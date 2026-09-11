@@ -71,7 +71,7 @@ const App: React.FC = () => {
 }, [openModal, addToast]);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 overflow-x-hidden transition-colors duration-300">
       <Routes>
 
         {/* ---------------- PUBLIC ROUTES ---------------- */}
