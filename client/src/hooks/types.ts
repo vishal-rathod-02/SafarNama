@@ -294,8 +294,8 @@ export interface DashboardHeaderProps {
 
 export interface StatItem {
   title: string;
-  value: number;
+  value: number | string;
   description: string;
-  color: "green" | "blue" | "yellow";
+  color: "amber" | "emerald" | "green" | "blue" | "yellow";
   icon: React.ComponentType<any>;
 }
