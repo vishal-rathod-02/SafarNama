@@ -7,6 +7,7 @@ import { TopDestinations } from "../Components/HomeComponents/TopDestinations";
 import { Services } from "../Components/HomeComponents/Services";
 import { AboutSection } from "../Components/HomeComponents/AboutSection";
 import { Footer } from "../Components/HomeComponents/Footer";
+import { SectionDivider } from "../Components/HomeComponents/SectionDivider";
 import { ScrollToTopButton } from "../Components/HomeComponents/ScrollButton";
 import { geocodeSinglePlace } from "@/hooks/geoUtils";
 import { PageStatus } from "./PageStatus";
@@ -31,32 +32,6 @@ export const HomePage: React.FC = () => {
   const contactRef = useRef<HTMLDivElement>(null);
 
   const sectionRefs = { home: heroRef, about: aboutRef, services: servicesRef, destinations: destinationsRef, contact: contactRef };
-
-//   useEffect(() => {
-//   const observer = new IntersectionObserver(
-//     (entries) => {
-//       entries.forEach((entry) => {
-//         if (entry.isIntersecting) {
-//           const sectionId = entry.target.id;
-//           if (sectionId) {
-//             setActiveSection(sectionId);
-//           }
-//         }
-//       });
-//     },
-//     {
-//       root: null,
-//       threshold: 0.3,
-//       rootMargin: "-80px 0px -40% 0px",
-//     }
-//   );
-
-//   Object.values(sectionRefs).forEach((ref) => {
-//     if (ref.current) observer.observe(ref.current);
-//   });
-
-//   return () => observer.disconnect();
-// }, []);
 
  const handleScrollToSection = useCallback(
   (sectionId: keyof typeof sectionRefs) => {
@@ -212,7 +187,7 @@ const handleSearch = useCallback(
   }
       />
 
-      <main >
+      <main className="relative bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         {( error) ? (
          <PageStatus
             isLoading={isLoading}
@@ -232,13 +207,24 @@ const handleSearch = useCallback(
               isLoading={isLoading}
             />
 
+            <SectionDivider />
+
             <TopDestinations
               ref={destinationsRef}
               id="destinations"
               onDestinationClick={handleDestinationSelect}
             />
+
+            <SectionDivider />
+
             <Services ref={servicesRef} id="services" />
+
+            <SectionDivider />
+
             <AboutSection ref={aboutRef} id="about" />
+
+            <SectionDivider />
+
             <Footer
               ref={contactRef}
               id="contact"
