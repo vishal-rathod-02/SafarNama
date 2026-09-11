@@ -74,6 +74,39 @@ async function geocodeQuery(queryName) {
   return null;
 }
 
+// ---------- Helper: Place Name Sanitization (Cyrillic / Foreign Tag Cleanup) ----------
+function sanitizePlaceName(p, category = "Attraction") {
+  const raw = p.datasource?.raw || {};
+  let candidate = raw["name:en"] || raw["int_name"] || raw["name_en"] || p.name_en || p.name;
+
+  if (!candidate || typeof candidate !== "string" || candidate.trim().length === 0) {
+    return p.street ? `${category} near ${p.street}` : `Scenic ${category}`;
+  }
+
+  // Detect Cyrillic / Foreign scripts (e.g. Russian OSM tags from pilgrims)
+  if (/[\u0400-\u04FF]/.test(candidate)) {
+    let translated = candidate
+      .replace(/храм[ыаео]?\s*/gi, "Temple of ")
+      .replace(/гхат/gi, "Ghat")
+      .replace(/ашрам\s*/gi, "Ashram ")
+      .replace(/самадхи\s*/gi, "Samadhi of ")
+      .replace(/Нрисимхадевы/gi, "Nrisimhadeva")
+      .replace(/Сурья/gi, "Surya")
+      .replace(/Дхира Самира/gi, "Dhira Samira")
+      .replace(/Пурнамаси и Адвайты/gi, "Purnamasi and Advaita")
+      .replace(/Гаутамы риши/gi, "Gautama Rishi")
+      .replace(/Югала/gi, "Yugala");
+
+    if (/[\u0400-\u04FF]/.test(translated)) {
+      if (raw["name:hi"]) return raw["name:hi"];
+      return p.street ? `${category} near ${p.street}` : `${category} in ${p.city || p.county || "the area"}`;
+    }
+    return translated.trim();
+  }
+
+  return candidate.trim();
+}
+
 // ---------- Routes ----------
 
 // Get popular destinations
@@ -174,6 +207,7 @@ router.get("/search", async (req, res) => {
         bias: `proximity:${lonVal},${latVal}`,
         limit: 15,
         apiKey: geoapifyKey,
+        lang: "en",
       },
       timeout: 5000,
     });
@@ -193,15 +227,17 @@ router.get("/search", async (req, res) => {
         category = "Historic Site";
       }
 
+      const cleanName = sanitizePlaceName(p, category);
+
       return {
         id: p.place_id,
-        name: p.name || (p.street ? `${category} near ${p.street}` : `Scenic ${category}`),
+        name: cleanName,
         country: p.country || "India",
         region: p.state || "",
         latitude: p.lat,
         longitude: p.lon,
         category: category,
-        description: `${p.name || category} is a must-visit location in ${p.city || p.county || "the area"}.`,
+        description: `${cleanName} is a must-visit location in ${p.city || p.county || "the area"}.`,
         rating: parseFloat((3.8 + Math.random() * 1.2).toFixed(1)),
         reviews: Math.floor(Math.random() * 400) + 15,
         location: p.formatted || `${p.city || ""}, ${p.state || ""}`.trim().replace(/^,\s*/, ""),
@@ -262,6 +298,7 @@ router.get("/nearby", async (req, res) => {
         bias: `proximity:${numLon},${numLat}`,
         limit: 10,
         apiKey: geoapifyKey,
+        lang: "en",
       },
       timeout: 5000,
     });
@@ -281,15 +318,17 @@ router.get("/nearby", async (req, res) => {
         category = "Historic Site";
       }
 
+      const cleanName = sanitizePlaceName(p, category);
+
       return {
         id: p.place_id,
-        name: p.name || `Scenic ${category}`,
+        name: cleanName,
         country: p.country || "India",
         region: p.state || "",
         latitude: p.lat,
         longitude: p.lon,
         category: category,
-        description: `${p.name || category} is located nearby.`,
+        description: `${cleanName} is located nearby.`,
         rating: parseFloat((3.8 + Math.random() * 1.2).toFixed(1)),
         reviews: Math.floor(Math.random() * 200) + 10,
         location: p.formatted || `${p.city || ""}, ${p.state || ""}`.trim().replace(/^,\s*/, ""),

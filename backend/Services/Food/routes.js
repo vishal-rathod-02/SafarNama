@@ -35,6 +35,33 @@ async function setCache(key, value, ttl = 3600) {
   memoryCache.set(key, value);
 }
 
+// ---------- Helper: Clean Food & Hotel Names ----------
+function cleanFoodName(p, defaultCategory = "Restaurant") {
+  const raw = p.datasource?.raw || {};
+  let candidate = raw["name:en"] || raw["int_name"] || raw["name_en"] || p.name_en || p.name;
+
+  if (!candidate || typeof candidate !== "string" || candidate.trim().length === 0) {
+    return p.street ? `${defaultCategory} near ${p.street}` : `Local ${defaultCategory}`;
+  }
+
+  // Detect and translate/replace Cyrillic/foreign tags
+  if (/[\u0400-\u04FF]/.test(candidate)) {
+    let translated = candidate
+      .replace(/ресторан\s*/gi, "Restaurant ")
+      .replace(/кафе\s*/gi, "Cafe ")
+      .replace(/отель\s*/gi, "Hotel ")
+      .replace(/гостиница\s*/gi, "Hotel ");
+
+    if (/[\u0400-\u04FF]/.test(translated)) {
+      if (raw["name:hi"]) return raw["name:hi"];
+      return p.street ? `${defaultCategory} near ${p.street}` : `Local ${defaultCategory} in ${p.city || "the area"}`;
+    }
+    return translated.trim();
+  }
+
+  return candidate.trim();
+}
+
 // ----------  Geoapify Constants ----------
 const GEOAPIFY_BASE = "https://api.geoapify.com/v2/places";
 const GEOAPIFY_KEY = process.env.GEOAPIFY_API_KEY;
@@ -61,22 +88,25 @@ router.get("/restaurants", async (req, res) => {
       `${GEOAPIFY_BASE}?categories=catering.restaurant` +
       `&filter=circle:${numLon},${numLat},${boundedRadius}` +
       `&bias=proximity:${numLon},${numLat}` +
-      `&limit=10&apiKey=${GEOAPIFY_KEY}`;
+      `&limit=10&apiKey=${GEOAPIFY_KEY}&lang=en`;
 
     const { data } = await axios.get(url, { timeout: 5000 });
 
-    const results = (data.features || []).map((f) => ({
-      id: f.properties.place_id,
-      name: f.properties.name || "Unnamed Restaurant",
-      category: "Restaurant",
-      address: f.properties.formatted,
-      rating: (Math.random() * 2 + 3).toFixed(1),
-      status: "Open",
-      image: null,
-      location: f.properties.formatted,
-      lat: f.properties.lat,
-      lon: f.properties.lon,
-    }));
+    const results = (data.features || []).map((f) => {
+      const cleanName = cleanFoodName(f.properties, "Restaurant");
+      return {
+        id: f.properties.place_id,
+        name: cleanName,
+        category: "Restaurant",
+        address: f.properties.formatted,
+        rating: (Math.random() * 2 + 3).toFixed(1),
+        status: "Open",
+        image: null,
+        location: f.properties.formatted,
+        lat: f.properties.lat,
+        lon: f.properties.lon,
+      };
+    });
 
     await setCache(cacheKey, results);
     res.json({ fromCache: false, results });
@@ -106,22 +136,25 @@ router.get("/hotels", async (req, res) => {
       `${GEOAPIFY_BASE}?categories=accommodation.hotel` +
       `&filter=circle:${numLon},${numLat},${boundedRadius}` +
       `&bias=proximity:${numLon},${numLat}` +
-      `&limit=10&apiKey=${GEOAPIFY_KEY}`;
+      `&limit=10&apiKey=${GEOAPIFY_KEY}&lang=en`;
 
     const { data } = await axios.get(url, { timeout: 5000 });
 
-    const results = (data.features || []).map((f) => ({
-      id: f.properties.place_id,
-      name: f.properties.name || "Unnamed Hotel",
-      category: "Hotel",
-      address: f.properties.formatted,
-      rating: (Math.random() * 2 + 3).toFixed(1),
-      status: "Available",
-      image: null,
-      location: f.properties.formatted,
-      lat: f.properties.lat,
-      lon: f.properties.lon,
-    }));
+    const results = (data.features || []).map((f) => {
+      const cleanName = cleanFoodName(f.properties, "Hotel");
+      return {
+        id: f.properties.place_id,
+        name: cleanName,
+        category: "Hotel",
+        address: f.properties.formatted,
+        rating: (Math.random() * 2 + 3).toFixed(1),
+        status: "Available",
+        image: null,
+        location: f.properties.formatted,
+        lat: f.properties.lat,
+        lon: f.properties.lon,
+      };
+    });
 
     await setCache(cacheKey, results);
     res.json({ fromCache: false, results });
@@ -150,13 +183,13 @@ router.get("/search", async (req, res) => {
       `${GEOAPIFY_BASE}?categories=catering.${cleanQuery.toLowerCase()}` +
       `&filter=circle:${numLon},${numLat},${boundedRadius}` +
       `&bias=proximity:${numLon},${numLat}` +
-      `&limit=10&apiKey=${GEOAPIFY_KEY}`;
+      `&limit=10&apiKey=${GEOAPIFY_KEY}&lang=en`;
 
     const { data } = await axios.get(url, { timeout: 5000 });
 
     const results = (data.features || []).map((f) => ({
       id: f.properties.place_id,
-      name: f.properties.name || cleanQuery,
+      name: cleanFoodName(f.properties, cleanQuery),
       category: cleanQuery,
       address: f.properties.formatted,
       rating: (Math.random() * 2 + 3).toFixed(1),
