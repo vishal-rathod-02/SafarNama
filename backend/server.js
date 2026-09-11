@@ -12,6 +12,7 @@ import locationRoutes from "./Services/Location/routes.js";
 import placesRoutes from "./Services/Places/routes.js";
 import foodRoutes from "./Services/Food/routes.js";
 import imageRoutes from "./Services/Image/routes.js";
+import { errorHandler } from "./Middleware/errorHandler.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -65,8 +66,6 @@ app.use("/api", locationRoutes);
 
 app.use("/api/places", placesRoutes);
 app.use("/api/food", foodRoutes);
-
-// Image service specifically answered to /api/place-image on app, and its router is just `/`
 app.use("/api/place-image", imageRoutes);
 
 // --- Health Check ---
@@ -78,6 +77,9 @@ app.get("/api/health", (req, res) => {
     redisConnected: !!redisClient
   });
 });
+
+// --- Global Error Handler ---
+app.use(errorHandler);
 
 // --- Server Start ---
 app.listen(PORT, () => {
