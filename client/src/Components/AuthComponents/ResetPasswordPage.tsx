@@ -62,19 +62,27 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-green-50 to-emerald-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 px-4 py-12 relative overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full"
+        className="bg-white dark:bg-slate-900 p-8 sm:p-10 rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 max-w-md w-full relative z-10"
       >
         {showSuccess ? (
           <SuccessState />
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-              Reset your password
-            </h2>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                Reset your password
+              </h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Choose a strong new password for your account
+              </p>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <PasswordInput
@@ -96,7 +104,7 @@ export const ResetPasswordPage: React.FC = () => {
               {error && (
                 <p
                   role="alert"
-                  className="text-red-600 text-sm font-medium"
+                  className="text-red-600 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-950/40 p-2.5 rounded-xl border border-red-200 dark:border-red-900/50"
                 >
                   {error}
                 </p>
@@ -105,13 +113,13 @@ export const ResetPasswordPage: React.FC = () => {
               <motion.button
                 type="submit"
                 disabled={isLoading}
-                whileTap={{ scale: 0.97 }}
-                whileHover={{ scale: 1.02 }}
-                className="w-full bg-linear-to-r from-green-500 to-emerald-600
-                           text-white font-bold py-3 rounded-lg
-                           hover:shadow-lg transition disabled:opacity-50"
+                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                className="w-full bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-500
+                           text-slate-950 font-black py-3.5 rounded-xl
+                           shadow-lg shadow-amber-500/25 transition disabled:opacity-50 tracking-wide mt-2"
               >
-                {isLoading ? "Resetting..." : "Reset password"}
+                {isLoading ? "Resetting..." : "Update Password"}
               </motion.button>
             </form>
           </>
@@ -137,7 +145,7 @@ const PasswordInput = ({
 
   return (
     <div className="relative">
-      <Icon className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+      <Icon className="w-5 h-5 text-slate-400 dark:text-slate-500 absolute left-3.5 top-3.5" />
 
       <input
         type={show ? "text" : "password"}
@@ -145,14 +153,15 @@ const PasswordInput = ({
         onChange={onChange}
         placeholder={placeholder}
         required
-        className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg
-                   focus:outline-none focus:ring-1 focus:ring-green-500"
+        className="w-full pl-11 pr-10 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl
+                   text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500
+                   focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-150"
       />
 
       <button
         type="button"
         onClick={() => setShow((v) => !v)}
-        className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
+        className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
         aria-label={show ? "Hide password" : "Show password"}
       >
         {show ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -165,18 +174,18 @@ const SuccessState = () => (
   <motion.div
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
-    className="text-center space-y-4"
+    className="text-center space-y-4 py-4"
   >
-    <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-      <CheckCircle className="text-green-600 w-6 h-6" />
+    <div className="mx-auto w-14 h-14 rounded-2xl bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+      <CheckCircle className="text-emerald-500 w-8 h-8" />
     </div>
 
-    <h3 className="text-xl font-bold text-gray-800">
+    <h3 className="text-2xl font-black text-slate-900 dark:text-white">
       Password updated 🎉
     </h3>
 
-    <p className="text-sm text-gray-600">
-      You can now log in using your new password.
+    <p className="text-sm text-slate-600 dark:text-slate-400">
+      You can now log in using your new password. Redirecting you...
     </p>
   </motion.div>
 );
@@ -197,26 +206,26 @@ const PasswordStrength = ({ password }: { password: string }) => {
 
   const levels = [
     { label: "Weak", color: "bg-red-500" },
-    { label: "Fair", color: "bg-yellow-500" },
+    { label: "Fair", color: "bg-amber-500" },
     { label: "Good", color: "bg-blue-500" },
-    { label: "Strong", color: "bg-green-500" },
+    { label: "Strong", color: "bg-emerald-500" },
   ];
 
   return (
-    <div className="space-y-1" aria-live="polite">
-      <div className="flex gap-1">
+    <div className="space-y-1.5" aria-live="polite">
+      <div className="flex gap-1.5">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className={`h-1.5 flex-1 rounded ${
-              strength > i ? levels[strength - 1]?.color : "bg-gray-200"
+            className={`h-1.5 flex-1 rounded-full transition-colors ${
+              strength > i ? levels[strength - 1]?.color : "bg-slate-200 dark:bg-slate-700"
             }`}
           />
         ))}
       </div>
-      <p className="text-xs text-gray-600">
+      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
         Password strength:{" "}
-        <span className="font-semibold">
+        <span className="font-bold text-slate-800 dark:text-slate-200">
           {levels[strength - 1]?.label || "Too weak"}
         </span>
       </p>

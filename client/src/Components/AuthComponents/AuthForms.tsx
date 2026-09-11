@@ -2,29 +2,28 @@ import { useEffect, useState } from "react";
 import { useToast } from "../Shared/ToastContext";
 import { useAuth } from "./AuthContext";
 import { AuthService } from "@/Services/Auth/Auth.service";
-import { Lock, Mail, User, Eye, EyeOff, LucideIcon } from "lucide-react";
+import { Lock, Mail, User, Eye, EyeOff, LucideIcon, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { GoogleIcon } from "../Shared/icons";
 import { useAuthModal } from "./AuthModalContext";
 
 const Separator = () => (
-    <div className="flex items-center space-x-2">
-      <hr className="grow border-gray-200" />
-      <span className="text-gray-400 text-xs font-semibold">OR</span>
-      <hr className="grow border-gray-200" />
-    </div>
-  );
+  <div className="flex items-center space-x-2 my-2">
+    <hr className="grow border-slate-200 dark:border-slate-700" />
+    <span className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider">OR</span>
+    <hr className="grow border-slate-200 dark:border-slate-700" />
+  </div>
+);
 
-  
 const SocialLoginButtons = () => {
   const { addToast } = useToast();
   return (
     <button
-      className="w-full flex items-center justify-center gap-3 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+      className="w-full flex items-center justify-center gap-3 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/70 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition duration-200 shadow-xs text-slate-700 dark:text-slate-200 font-semibold"
       onClick={() => addToast({ message: "Google Sign-In coming soon!", type: "info" })}
     >
       <GoogleIcon className="w-5 h-5" />
-      <span className="font-semibold text-gray-700">Continue with Google</span>
+      <span>Continue with Google</span>
     </button>
   );
 };
@@ -136,14 +135,22 @@ export const LoginForm = ({ switchMode, closeModal }: any) => {
 
   return (
     <div className="space-y-6 relative">
-      <h2 className="text-3xl font-bold text-center text-gray-800">
-        Welcome Back 👋
-      </h2>
+      <div className="text-center space-y-1">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold mb-1">
+          <Sparkles className="w-3.5 h-3.5" /> Welcome Back
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          Sign In to SafarNama
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+          Continue planning your dream adventures
+        </p>
+      </div>
 
       {/* Loader */}
       {isLoading && (
-        <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg z-50">
-          <div className="animate-spin h-8 w-8 border-b-2 border-green-500 rounded-full" />
+        <div className="absolute inset-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs flex items-center justify-center rounded-xl z-50">
+          <div className="animate-spin h-9 w-9 border-3 border-amber-500 border-t-transparent rounded-full" />
         </div>
       )}
 
@@ -157,22 +164,26 @@ export const LoginForm = ({ switchMode, closeModal }: any) => {
           required
         />
 
-        <InputWithIcon Icon={Lock} type="password" placeholder="Password (min 6 chars)" value={password} onChange={(e: any) => setPassword(e.target.value)} required  showForgot/>
+        <InputWithIcon 
+          Icon={Lock} 
+          type="password" 
+          placeholder="Password (min 6 chars)" 
+          value={password} 
+          onChange={(e: any) => setPassword(e.target.value)} 
+          required  
+          showForgot
+        />
 
-        {error && (
-          <div className="bg-red-100 text-red-700 px-3 py-2 rounded-md text-sm">
-            {error}
-          </div>
-        )}
+        {error && <ErrorBox message={error} />}
 
         <motion.button
           type="submit"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           disabled={isLoading}
-          className="w-full py-3 rounded-lg bg-linear-to-r from-green-500 to-emerald-600 text-white font-bold disabled:opacity-50"
+          className="w-full py-3.5 rounded-xl bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/25 transition disabled:opacity-50 tracking-wide"
         >
-          {isLoading ? "Logging you in..." : "Login"}
+          {isLoading ? "Logging you in..." : "Login to SafarNama"}
         </motion.button>
       </form>
 
@@ -181,7 +192,7 @@ export const LoginForm = ({ switchMode, closeModal }: any) => {
         <button
           onClick={handleResend}
           disabled={isResending || cooldown > 0}
-          className="w-full text-sm text-green-600 hover:underline disabled:opacity-50"
+          className="w-full text-sm font-semibold text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-50"
         >
           {cooldown > 0
             ? `Resend available in ${cooldown}s`
@@ -191,11 +202,11 @@ export const LoginForm = ({ switchMode, closeModal }: any) => {
         </button>
       )}
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-slate-600 dark:text-slate-400">
         Don’t have an account?{" "}
         <button
           onClick={() => switchMode("signup")}
-          className="font-semibold text-green-600 hover:underline"
+          className="font-bold text-amber-600 dark:text-amber-400 hover:underline"
         >
           Sign Up
         </button>
@@ -246,18 +257,26 @@ export const SignupForm = ({ switchMode, closeModal }: any) => {
 
   return (
     <div className="space-y-6 relative">
-      <h2 className="text-3xl font-bold text-gray-800 text-center">Join SafarNama</h2>
+      <div className="text-center space-y-1">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold mb-1">
+          <Sparkles className="w-3.5 h-3.5" /> Start Exploring
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Join SafarNama</h2>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+          Create an account to save custom itineraries and routes
+        </p>
+      </div>
 
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-lg z-50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs rounded-xl z-50">
+          <div className="animate-spin rounded-full h-9 w-9 border-3 border-amber-500 border-t-transparent"></div>
         </div>
       )}
 
       <SocialLoginButtons />
       <Separator />
 
-      <form onSubmit={handleSubmit} className="space-y-4" >
+      <form onSubmit={handleSubmit} className="space-y-4">
         <InputWithIcon Icon={User} type="text" placeholder="Full Name" value={fullName} onChange={(e: any) => setFullName(e.target.value)} required />
         <InputWithIcon Icon={Mail} type="email" placeholder="Email" value={email} onChange={(e: any) => setEmail(e.target.value)} required />
         <InputWithIcon Icon={Lock} type="password" placeholder="Password (min 6 chars)" value={password} onChange={(e: any) => setPassword(e.target.value)} required />
@@ -267,17 +286,17 @@ export const SignupForm = ({ switchMode, closeModal }: any) => {
         <motion.button
           type="submit"
           disabled={isLoading}
-          whileTap={{ scale: 0.97 }}
-          whileHover={{ scale: 1.02 }}
-          className="w-full bg-linear-to-r from-green-500 to-emerald-600 text-white font-bold py-3 rounded-lg hover:shadow-lg transition disabled:opacity-50"
+          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.01 }}
+          className="w-full bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-3.5 rounded-xl shadow-lg shadow-amber-500/25 transition disabled:opacity-50 tracking-wide"
         >
-          {isLoading ? "Creating Account..." : "Create Account"}
+          {isLoading ? "Creating Account..." : "Create Free Account"}
         </motion.button>
       </form>
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-slate-600 dark:text-slate-400">
         Already have an account?{" "}
-        <button onClick={() => switchMode("login")} className="font-semibold text-green-600 hover:underline">
+        <button onClick={() => switchMode("login")} className="font-bold text-amber-600 dark:text-amber-400 hover:underline">
           Log In
         </button>
       </p>
@@ -326,13 +345,14 @@ export const ForgotPasswordForm = ({ switchMode }: any) => {
 
   return (
     <div className="space-y-6 relative">
-      <h2 className="text-3xl font-bold text-gray-800 text-center">
-        Forgot Password
-      </h2>
-
-      <p className="text-sm text-gray-600 text-center">
-        Enter your email and we’ll send you a password reset link.
-      </p>
+      <div className="text-center space-y-1">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          Forgot Password
+        </h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Enter your email and we’ll send you a password reset link.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <InputWithIcon
@@ -349,19 +369,19 @@ export const ForgotPasswordForm = ({ switchMode }: any) => {
         <motion.button
           type="submit"
           disabled={isLoading || !email}
-          whileTap={{ scale: 0.97 }}
-          whileHover={{ scale: 1.02 }}
-          className="w-full bg-linear-to-r from-green-500 to-emerald-600 text-white font-bold py-3 rounded-lg hover:shadow-lg transition disabled:opacity-50"
+          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.01 }}
+          className="w-full bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-3.5 rounded-xl shadow-lg shadow-amber-500/25 transition disabled:opacity-50 tracking-wide"
         >
           {isLoading ? "Sending..." : "Send Reset Link"}
         </motion.button>
       </form>
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-slate-600 dark:text-slate-400">
         Remembered your password?{" "}
         <button
           onClick={() => switchMode("login")}
-          className="font-semibold text-green-600 hover:underline"
+          className="font-bold text-amber-600 dark:text-amber-400 hover:underline"
         >
           Back to Login
         </button>
@@ -393,23 +413,24 @@ export const InputWithIcon = ({
 
   return (
     <div className="relative">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <Icon className="w-5 h-5 text-gray-400" />
+      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+        <Icon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
       </div>
 
       <input
         {...props}
         type={finalType}
-        className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg
-                   focus:outline-none focus:ring-1 focus:ring-green-500"
+        className="w-full pl-11 pr-10 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl
+                   text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500
+                   focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-150"
       />
 
       {type === "password" && (
         <button
           type="button"
           onClick={toggleVisibility}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center
-                     text-gray-400 hover:text-gray-600"
+          className="absolute inset-y-0 right-0 pr-3.5 flex items-center
+                     text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition"
         >
           {isPasswordVisible ? (
             <EyeOff className="w-5 h-5" />
@@ -422,7 +443,7 @@ export const InputWithIcon = ({
         <button
           type="button"
           onClick={() => switchMode("forgot")}
-          className="text-xs text-emerald-600 hover:underline text-right w-full"
+          className="text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline text-right w-full mt-1.5"
         >
           Forgot password?
         </button>
@@ -432,5 +453,5 @@ export const InputWithIcon = ({
 };
 
 export const ErrorBox = ({ message }: { message: string }) => (
-  <div className="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded-md text-sm">{message}</div>
+  <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-600 dark:text-red-400 px-3.5 py-2.5 rounded-xl text-sm font-medium">{message}</div>
 );

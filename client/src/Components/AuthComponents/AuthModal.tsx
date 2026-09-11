@@ -31,7 +31,7 @@ export const AuthModal: React.FC = () => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-md"
           variants={backdropVariants}
           initial="hidden"
           animate="visible"
@@ -39,16 +39,19 @@ export const AuthModal: React.FC = () => {
           onClick={closeModal}
         >
           <motion.div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md m-4 relative overflow-hidden"
+            className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md m-4 relative overflow-hidden text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800"
             variants={modalVariants}
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Authentication modal"
           >
             <button
               aria-label="Close authentication modal"
               onClick={closeModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition z-10"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition z-10"
             >
-              <X />
+              <X className="w-5 h-5" />
             </button>
 
             <AnimatePresence mode="wait">
