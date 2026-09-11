@@ -22,34 +22,31 @@ const ServiceCard: React.FC<{
   delay?: number;
 }> = ({ icon, title, description, delay = 0 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 40 }}
+    initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, amount: 0.3 }}
-    transition={{ duration: 0.6, ease: "easeOut", delay }}
+    viewport={{ once: true, amount: 0.2 }}
+    transition={{ duration: 0.5, ease: "easeOut", delay }}
+    className="h-full"
   >
     <div
-      className="group relative h-full rounded-2xl p-px
-                 bg-linear-to-br from-green-200 via-gray-200 to-gray-200
-                 hover:from-green-400 hover:to-emerald-400
-                 transition-all duration-300"
+      className="group relative h-full rounded-3xl p-px
+                 bg-linear-to-b from-amber-500/30 via-slate-200/50 dark:via-slate-800 to-emerald-500/20
+                 hover:from-amber-400 hover:via-amber-500/40 hover:to-emerald-400
+                 transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-amber-500/10"
     >
-      <div className="relative h-full bg-white dark:bg-gray-800 p-6 sm:p-8 text-center rounded-[15px] transition-transform duration-300 group-hover:-translate-y-2">
-        <div
-          className="absolute inset-0 bg-linear-to-br from-green-300 to-emerald-300 rounded-xl
-                     opacity-0 group-hover:opacity-10 transition-opacity duration-300 blur-xl"
-        />
+      <div className="relative h-full glass-luxury p-7 sm:p-8 text-center rounded-[23px] transition-transform duration-300 group-hover:-translate-y-1.5 flex flex-col items-center">
+        {/* Specular top highlight line */}
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-amber-400/50 to-transparent rounded-t-3xl" />
 
-        <div className="relative">
-          <div className="text-green-500 mx-auto mb-6 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-full bg-green-50 dark:bg-gray-700 shadow-inner">
-            {icon}
-          </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 mb-3">
-            {title}
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-            {description}
-          </p>
+        <div className="text-amber-500 dark:text-amber-400 mx-auto mb-6 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-2xl bg-amber-500/10 dark:bg-slate-800/80 border border-amber-500/20 dark:border-amber-400/20 shadow-xs group-hover:scale-105 transition-transform duration-300">
+          {icon}
         </div>
+        <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 tracking-tight">
+          {title}
+        </h3>
+        <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+          {description}
+        </p>
       </div>
     </div>
   </motion.div>
@@ -105,24 +102,8 @@ export const Services = React.forwardRef<HTMLDivElement, ServicesProps>(
       <section
         ref={ref}
         id={id}
-        className="py-16 sm:py-24 bg-linear-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden"
+        className="py-16 sm:py-24 bg-slate-100/70 dark:bg-slate-900/50 relative overflow-hidden transition-colors duration-300"
       >
-        {/* Decorative background shapes */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 0.1, scale: 1 }}
-          transition={{ duration: 2 }}
-          viewport={{ once: true }}
-          className="absolute top-10 left-10 w-32 h-32 sm:w-40 sm:h-40 bg-green-200 rounded-full blur-3xl animate-pulse"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 0.15, scale: 1 }}
-          transition={{ duration: 2, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="absolute bottom-10 right-10 w-40 h-40 sm:w-52 sm:h-52 bg-green-300 rounded-full blur-3xl animate-pulse"
-        />
-
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Section Header */}
           <motion.div
@@ -130,41 +111,40 @@ export const Services = React.forwardRef<HTMLDivElement, ServicesProps>(
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
-            className="text-center mb-8"
+            className="text-center mb-10"
           >
-            <h3 className="text-green-600 font-bold text-sm sm:text-lg tracking-wide mb-2 sm:mb-3">
-              SERVICES
-            </h3>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-slate-100 leading-tight">
-              Premium Tours & Travel Services
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs uppercase tracking-wider mb-3.5 shadow-xs">
+              Features & Capabilities
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight">
+              Premium Road Trip Engineering
             </h2>
-            <p className="mt-3 sm:mt-4 text-gray-600 dark:text-gray-400 max-w-xl sm:max-w-2xl mx-auto text-sm sm:text-base">
-              Compare standard maps tools with SafarNama's AI-curated travel
-              experiences.
+            <p className="mt-3 sm:mt-4 text-slate-600 dark:text-slate-300 max-w-xl sm:max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+              Compare standard maps tools with SafarNama's AI-curated travel experiences.
             </p>
           </motion.div>
 
           {/* Toggle Switch */}
           <div className="flex justify-center mb-12">
-            <div className="bg-gray-200 dark:bg-gray-800 p-1.5 rounded-full flex gap-1 shadow-inner border border-gray-300 dark:border-gray-700">
+            <div className="glass-luxury p-1.5 rounded-full flex gap-1 shadow-md">
               <button
                 onClick={() => setIsPremiumPerks(false)}
-                className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${!isPremiumPerks
-                    ? "bg-white text-gray-800 shadow-md"
-                    : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                className={`px-5 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${!isPremiumPerks
+                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md"
+                    : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                   }`}
               >
                 Standard Maps
               </button>
               <button
                 onClick={() => setIsPremiumPerks(true)}
-                className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer ${isPremiumPerks
-                    ? "bg-linear-to-r from-green-500 to-emerald-600 text-white shadow-md"
-                    : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                className={`px-5 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-black transition-all flex items-center gap-1.5 cursor-pointer ${isPremiumPerks
+                    ? "bg-linear-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-md shadow-amber-500/25 border border-amber-300 dark:border-amber-400"
+                    : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                   }`}
               >
                 <span>AI-Premium Perks</span>
-                <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full text-white">
+                <span className="text-[10px] bg-slate-950/20 px-2 py-0.5 rounded-full text-slate-950 font-black">
                   PRO
                 </span>
               </button>
@@ -172,7 +152,7 @@ export const Services = React.forwardRef<HTMLDivElement, ServicesProps>(
           </div>
 
           {/* Service Cards with AnimatePresence */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <AnimatePresence mode="wait">
               {(isPremiumPerks ? premiumServices : standardServices).map(
                 (service, idx) => (
